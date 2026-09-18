@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>GTA 线上载具库 · 洛圣都车库档案</title>
+<style>
+
+:root{
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,"JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
+
+  --ink:#050506;
+  --ink-2:#0a0a0c;
+  --paper:rgba(255,255,255,.028);
+  --paper-2:rgba(255,255,255,.05);
+  --rule:rgba(255,255,255,.09);
+  --rule-2:rgba(255,255,255,.16);
+
+  --fg:#eeeef0;
+  --fg-2:#a5a7ae;
+  --fg-3:#6e7078;
+  --fg-4:#494b52;
+
+  --acid:#d8f43c;
+  --amber:#ffa030;
+  --red:#ff3b30;
+  --green:#38d95c;
+
+  --maxw:1320px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;overflow-x:clip}
+@supports not (overflow:clip){html{overflow-x:hidden}}
+body{
+  margin:0;background:var(--ink);color:var(--fg);
+  font-family:var(--sans);font-size:15.5px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-variant-numeric:tabular-nums;
+}
+
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 480px at 78% -6%, rgba(216,244,60,.09), transparent 60%),
+    radial-gradient(700px 420px at 6% 2%, rgba(255,160,48,.07), transparent 62%),
+    linear-gradient(180deg,#050506,#08080a 40%,#050506);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:74px 74px;
+  mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 45%,transparent 92%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 45%,transparent 92%);
+}
+/* 指针光斑：一层大号柔光，惯性跟随鼠标（JS 里 lerp），给整页一个「活的」底光。
+   触屏与小屏直接关掉——那上面没有悬停语义，只有耗电 */
+#glow{position:fixed;left:0;top:0;z-index:-1;width:760px;height:760px;margin:-380px 0 0 -380px;
+  pointer-events:none;opacity:0;will-change:transform;transition:opacity .8s var(--ease);
+  background:radial-gradient(closest-side,rgba(216,244,60,.06),rgba(216,244,60,.02) 45%,transparent 72%)}
+#glow.on{opacity:1}
+@media(max-width:900px),(pointer:coarse){#glow{display:none}}
+::selection{background:var(--acid);color:#111}
+:focus-visible{outline:2px solid var(--acid);outline-offset:2px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#0a0a0c}
+::-webkit-scrollbar-thumb{background:#2a2a30;border:2px solid #0a0a0c;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#3d3d46}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 30px}
+@media(max-width:680px){.wrap{padding:0 18px}}
+
+.rail{
+  position:sticky;top:0;z-index:90;height:52px;
+  background:rgba(5,5,6,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--rule);
+}
+.rail-in{display:flex;align-items:center;gap:12px;height:52px;min-width:0}
+.rail-brand{display:flex;align-items:center;gap:10px;flex:0 1 auto;min-width:0}
+.rail-brand b{font:600 13.5px/1 var(--sans);letter-spacing:.02em;white-space:nowrap;
+  min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rail-brand i{font-style:normal;color:var(--fg-4);font:400 11px/1 var(--mono);letter-spacing:.06em;white-space:nowrap}
+.rail.scrolled{background:rgba(5,5,6,.95);border-bottom-color:var(--rule-2);
+  box-shadow:0 14px 34px -20px rgba(0,0,0,.95)}
+.rail-sp{flex:1;min-width:4px}
+.rail-acts{display:flex;align-items:center;gap:6px;flex:none;position:relative}
+
+.rail-btn{
+  appearance:none;cursor:pointer;height:34px;padding:0 12px;
+  display:inline-flex;align-items:center;gap:7px;
+  background:transparent;border:1px solid var(--rule);border-radius:4px;
+  color:var(--fg-2);font:500 11.5px/1 var(--mono);letter-spacing:.05em;
+  white-space:nowrap;text-decoration:none;transition:.16s var(--ease)
+}
+.rail-btn:hover{color:var(--fg);border-color:var(--rule-2);background:var(--paper)}
+.rail-btn:active{transform:translateY(1px)}
+.rail-btn svg{width:13px;height:13px;flex:none}
+.rail-btn.pri{background:var(--acid);border-color:var(--acid);color:#0b0d02;font-weight:700}
+.rail-btn.pri:hover{background:#e6ff52;border-color:#e6ff52;color:#0b0d02}
+.rail-btn .n{font:700 11.5px/1 var(--mono);color:var(--fg-4)}
+.rail-btn.has .n{color:var(--acid)}
+.rail-btn.on{border-color:var(--rule-2);background:var(--paper);color:var(--fg)}
+
+.rail-menu{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:188px;padding:5px;z-index:95;
+  background:#0e0e13;border:1px solid var(--rule-2);border-radius:6px;
+  box-shadow:0 22px 54px -14px rgba(0,0,0,.92);
+  opacity:0;transform:translateY(-6px);pointer-events:none;transition:.15s var(--ease)
+}
+.rail-menu.on{opacity:1;transform:none;pointer-events:auto}
+.rail-menu-h{padding:7px 10px 5px;font:600 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--fg-4)}
+.rail-menu button{
+  display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:0;border-radius:3px;
+  background:transparent;color:var(--fg-2);cursor:pointer;text-align:left;
+  font:400 12.5px/1.35 var(--sans);white-space:nowrap
+}
+.rail-menu button:hover{background:rgba(255,255,255,.055);color:var(--fg)}
+.rail-menu button svg{width:13px;height:13px;flex:none;color:var(--fg-4)}
+
+@media(max-width:1660px){.rail-brand i{display:none}.rail-in{gap:10px}}
+@media(max-width:1400px){.rail-btn{padding:0 10px}}
+@media(max-width:1280px){.rail-btn span{display:none}.rail-btn{padding:0 9px}}
+
+.btn{
+  appearance:none;cursor:pointer;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--fg-2);background:transparent;
+  border:1px solid var(--rule);padding:8px 13px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;text-decoration:none;
+  transition:.2s var(--ease)
+}
+.btn:hover{color:var(--fg);border-color:var(--rule-2);background:var(--paper)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:12px;height:12px;flex:none}
+.btn-acid{background:var(--acid);border-color:var(--acid);color:#0b0d02;font-weight:700}
+.btn-acid:hover{background:#e6ff52;border-color:#e6ff52;color:#0b0d02}
+.btn-dgr{color:#ff8c84;border-color:rgba(255,59,48,.34)}
+.btn-dgr:hover{color:#ffb3ad;border-color:rgba(255,59,48,.6);background:rgba(255,59,48,.08)}
+.btn-xs{padding:6px 10px;font-size:10.5px}
+#btnWant b{font:700 11.5px/1 var(--mono);color:var(--fg-4);margin-left:1px}
+#btnWant.has b{color:var(--acid)}
+
+.hero{padding:76px 0 0;position:relative}
+.hero::after{content:"";display:block;height:1px;background:var(--rule);margin-top:56px}
+.kicker{
+  display:flex;align-items:center;gap:12px;margin-bottom:26px;
+  font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--acid)
+}
+.kicker::before{content:"";width:34px;height:1px;background:var(--acid);flex:none}
+.kicker s{text-decoration:none;color:var(--fg-4);letter-spacing:.14em}
+h1{
+  margin:0 0 30px;font-weight:800;letter-spacing:-.045em;line-height:1;
+  font-size:clamp(36px,7.4vw,82px);
+}
+h1 .l1{display:block}
+h1 .l2{
+  display:block;margin-top:20px;padding-top:18px;border-top:1px solid var(--rule);
+  font:600 clamp(10.5px,1.4vw,13px)/1 var(--mono);letter-spacing:.3em;
+  text-transform:uppercase;color:var(--fg-4);width:min(100%,560px)
+}
+.lede{
+  max-width:64ch;color:var(--fg-2);font-size:16px;line-height:1.85;margin:0 0 44px;
+  border-left:2px solid var(--acid);padding-left:20px
+}
+.lede b{color:var(--fg);font-weight:600}
+.lede em{font-style:normal;font-family:var(--mono);font-size:13px;color:var(--acid);
+  background:rgba(216,244,60,.09);padding:2px 7px;border-radius:3px;border:1px solid rgba(216,244,60,.22)}
+
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-top:1px solid var(--rule)}
+.spec{padding:20px 22px 22px 0;border-right:1px solid var(--rule);position:relative}
+.spec:last-child{border-right:0}
+.spec-n{font:700 34px/1 var(--sans);letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.spec-n i{font-style:normal;font-family:var(--mono);font-size:12px;font-weight:400;color:var(--fg-4);margin-left:6px;letter-spacing:.04em}
+.spec-l{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--fg-4);margin-top:11px}
+.spec-a .spec-n{color:var(--acid)}
+.spec-g .spec-n{color:var(--green)}
+.spec-w .spec-n{color:var(--amber)}
+@media(max-width:760px){.spec{border-right:0;border-bottom:1px solid var(--rule);padding:16px 0}
+  .spec:last-child{border-bottom:0}.specs{grid-template-columns:repeat(2,1fr)}}
+
+section{padding:76px 0 0}
+.s-head{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:start;margin-bottom:30px}
+.s-idx{font:700 12px/1 var(--mono);color:var(--acid);letter-spacing:.1em;padding-top:9px}
+.s-t{font-size:clamp(24px,3.4vw,38px);font-weight:750;letter-spacing:-.035em;line-height:1.08;margin:0 0 10px}
+.s-en{font:600 10.5px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--acid);margin:0 0 14px}
+.s-d{color:var(--fg-2);font-size:14.5px;margin:0;max-width:78ch;line-height:1.8}
+.s-d code{font-family:var(--mono);font-size:12.5px;color:var(--acid);background:rgba(216,244,60,.08);
+  border:1px solid rgba(216,244,60,.2);padding:1px 6px;border-radius:3px}
+@media(max-width:680px){.s-head{grid-template-columns:1fr;gap:10px}.s-idx{padding-top:0}}
+
+.console{
+  position:sticky;top:52px;z-index:70;margin-bottom:24px;
+  background:rgba(8,8,10,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--rule);border-radius:6px;overflow:hidden
+}
+.c-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.c-row:last-child{border-bottom:0}
+.c-field{display:flex;align-items:center;gap:9px;padding:0 14px;height:46px;border-right:1px solid var(--rule);min-width:0}
+.c-field.grow{flex:1;min-width:230px}
+
+.c-field.sel{width:196px;flex:0 0 196px;min-width:0;overflow:hidden}
+.c-lab{font:600 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--fg-4);flex:none}
+.c-field svg.ic{width:13px;height:13px;color:var(--fg-4);flex:none}
+.c-field input[type=search]{
+  flex:1;min-width:0;background:transparent;border:0;color:var(--fg);font-family:var(--sans);
+  font-size:14px;padding:0;height:100%
+}
+.c-field input[type=search]::placeholder{color:var(--fg-4)}
+.c-field input[type=search]:focus{outline:none}
+.c-field input[type=search]::-webkit-search-cancel-button{display:none}
+.xs{width:22px;height:22px;flex:none;border:1px solid var(--rule);background:transparent;color:var(--fg-3);
+  border-radius:3px;cursor:pointer;font-size:11px;line-height:1;display:none;padding:0;transition:.18s var(--ease)}
+.c-field.has .xs{display:grid;place-items:center}
+.xs:hover{color:var(--fg);border-color:var(--rule-2)}
+select.c-sel{
+  appearance:none;background:transparent;border:0;color:var(--fg-2);font-family:var(--mono);
+  font-size:11.5px;letter-spacing:.04em;cursor:pointer;padding:0 20px 0 0;height:100%;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%236e7078' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 2px center;background-size:11px
+}
+select.c-sel:hover{color:var(--fg)}
+select.c-sel:focus{outline:none;color:var(--acid)}
+select.c-sel option{background:#131317;color:var(--fg);font-family:var(--sans);font-size:13px}
+
+.c-tags{display:flex;gap:0;flex-wrap:wrap;padding:0 6px 0 8px;align-items:center;min-height:44px}
+.tag{
+  cursor:pointer;user-select:none;font:500 11.5px/1 var(--mono);letter-spacing:.04em;
+  padding:6px 11px;border-radius:3px;border:1px solid transparent;color:var(--fg-3);transition:.18s var(--ease)
+}
+.tag:hover{color:var(--fg);background:var(--paper)}
+.tag.on{color:var(--acid);border-color:rgba(216,244,60,.36);background:rgba(216,244,60,.09);font-weight:600}
+.tag i{font-style:normal;opacity:.5;margin-left:5px;font-size:10px}
+.tag-div{width:1px;height:16px;background:var(--rule);margin:0 8px;flex:none}
+
+.c-sw{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;
+  font:500 11.5px/1 var(--mono);letter-spacing:.04em;color:var(--fg-3);
+  padding:7px 12px 7px 8px;border-right:1px solid var(--rule);transition:.18s var(--ease);height:46px}
+.c-sw:last-of-type{border-right:0}
+.c-sw:hover{color:var(--fg);background:var(--paper)}
+.c-sw .sw{width:26px;height:15px;border-radius:99px;background:rgba(255,255,255,.13);position:relative;transition:.22s var(--ease);flex:none}
+.c-sw .sw::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:.22s var(--ease)}
+.c-sw.on{color:var(--fg)}
+.c-sw.on .sw{background:var(--acid)}
+.c-sw.on .sw::after{transform:translateX(11px)}
+.c-right{margin-left:auto;display:flex;align-items:center}
+.c-count{padding:0 14px;font:500 11.5px/1 var(--mono);color:var(--fg-4);letter-spacing:.06em;border-left:1px solid var(--rule);height:46px;display:flex;align-items:center;white-space:nowrap}
+.c-count b{color:var(--acid);font-weight:600}
+.own-chip{
+  display:flex;align-items:center;gap:8px;cursor:pointer;height:46px;padding:0 16px;
+  border-left:1px solid var(--rule);font:600 11.5px/1 var(--mono);letter-spacing:.06em;
+  color:var(--green);transition:.18s var(--ease);white-space:nowrap
+}
+.own-chip:hover{background:rgba(56,217,92,.08)}
+.own-chip b{font-weight:700}
+.own-chip.zero{color:var(--fg-4);cursor:pointer}
+.own-chip.zero:hover{color:var(--fg-3);background:var(--paper)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:0;
+  border-top:1px solid var(--rule);border-left:1px solid var(--rule)}
+.v{
+  content-visibility:auto;contain-intrinsic-size:auto 250px;
+  position:relative;padding:20px 22px 18px 24px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  display:flex;flex-direction:column;gap:12px;transition:.24s var(--ease);background:transparent
+}
+.v::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cc,#3a3a42);
+  transform:scaleY(.28);transform-origin:top;transition:.32s var(--ease)}
+.v:hover{background:var(--paper)}
+.v:hover::before{transform:none}
+.v.owned{background:rgba(56,217,92,.045)}
+.v.owned::before{background:var(--green);transform:none}
+.v.owned:hover{background:rgba(56,217,92,.075)}
+/* 卡片光晕：径向渐变中心由 --mx/--my 决定，鼠标滑过时那一点被「点亮」。
+   只改自定义属性与透明度，不触发重排 —— 抖动红线碰不得 */
+.v::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
+  transition:opacity .35s var(--ease);
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,38%),rgba(216,244,60,.07),transparent 70%)}
+.v:hover::after{opacity:1}
+
+.v-h{display:flex;align-items:flex-start;gap:12px;padding-right:26px}
+.v-nm{flex:1;min-width:0}
+.v-brand{font:600 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3)}
+.v-model{
+  font-size:17px;font-weight:650;letter-spacing:-.018em;line-height:1.24;margin:7px 0 0;color:var(--fg);
+  overflow-wrap:anywhere
+}
+.v-en{font:400 10.5px/1.4 var(--mono);color:var(--fg-4);margin-top:6px;overflow-wrap:anywhere;letter-spacing:.01em}
+.v-en s{text-decoration:none;color:#3a3c43}
+
+.v-badges{display:flex;gap:5px;flex-wrap:wrap}
+.bd{font:600 9.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border-radius:2px;
+  border:1px solid var(--rule);color:var(--fg-3);white-space:nowrap}
+.bd-cls{color:var(--cc,#a5a7ae);border-color:color-mix(in srgb,var(--cc,#a5a7ae) 34%,transparent);
+  background:color-mix(in srgb,var(--cc,#a5a7ae) 11%,transparent)}
+.bd-new{color:#0b0d02;background:var(--acid);border-color:var(--acid);font-weight:800}
+.bd-hsw{color:#ffe066;border-color:rgba(255,176,0,.4);background:rgba(255,176,0,.12)}
+.bd-benny{color:#c9a2ff;border-color:rgba(169,123,255,.4);background:rgba(169,123,255,.12)}
+.bd-arena{color:#ff9a92;border-color:rgba(255,59,48,.4);background:rgba(255,59,48,.12)}
+.bd-moc{color:#8ce3f2;border-color:rgba(56,208,232,.4);background:rgba(56,208,232,.12)}
+.bd-drift{color:#8fbaff;border-color:rgba(80,140,255,.4);background:rgba(80,140,255,.12)}
+.bd-lscm{color:#ffd97a;border-color:rgba(255,200,60,.36);background:rgba(255,200,60,.1)}
+.bd-hangar{color:#93e8a5;border-color:rgba(56,217,92,.36);background:rgba(56,217,92,.1)}
+.bd-shop{color:var(--fg-3)}
+
+.v-data{display:flex;flex-direction:column;gap:0;margin-top:2px}
+.v-r{display:flex;align-items:baseline;gap:12px;padding:5px 0;border-top:1px dashed rgba(255,255,255,.075);font-size:12.5px}
+.v-r:first-child{border-top:0}
+/* 入场编排：只在首次绘制播放（.pre 由 boot 摘掉），之后任何重渲染都保持安静 */
+@media(prefers-reduced-motion:no-preference){
+  .hero .kicker{animation:rise .55s var(--ease-out) .02s backwards}
+  .hero h1{animation:rise .7s var(--ease-out) .1s backwards}
+  .hero .lede{animation:rise .7s var(--ease-out) .2s backwards}
+  .hero .specs{animation:rise .8s var(--ease-out) .3s backwards}
+  #grid.pre .v{animation:cardIn .5s var(--ease-out) .36s backwards}
+  #grid.pre .v:nth-child(1){animation-delay:0s}
+  #grid.pre .v:nth-child(2){animation-delay:.03s}
+  #grid.pre .v:nth-child(3){animation-delay:.06s}
+  #grid.pre .v:nth-child(4){animation-delay:.09s}
+  #grid.pre .v:nth-child(5){animation-delay:.12s}
+  #grid.pre .v:nth-child(6){animation-delay:.15s}
+  #grid.pre .v:nth-child(7){animation-delay:.18s}
+  #grid.pre .v:nth-child(8){animation-delay:.21s}
+  #grid.pre .v:nth-child(9){animation-delay:.24s}
+  #grid.pre .v:nth-child(n+10){animation-delay:.27s}
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.v-k{flex:none;width:42px;font:600 9.5px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3)}
+.v-v{flex:1;min-width:0;color:var(--fg-2);overflow-wrap:anywhere;line-height:1.5}
+
+.v-f{margin-top:auto;padding-top:14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.v-price{font:700 16px/1 var(--mono);letter-spacing:-.02em;color:var(--amber)}
+.v-price.free{color:var(--green);font-size:12px;font-weight:600;letter-spacing:.04em}
+
+.empty{padding:80px 24px;text-align:center;grid-column:1/-1;border-bottom:1px solid var(--rule);
+  color:var(--fg-3);font-size:14px}
+.empty b{display:block;font:700 20px/1.3 var(--sans);color:var(--fg);margin-bottom:8px;letter-spacing:-.02em}
+.feed{display:none;position:relative;justify-content:center;align-items:center;gap:14px;padding:20px 0 30px}
+.feed.on{display:flex}
+.feed-n{font:500 11px/1 var(--mono);letter-spacing:.06em;color:var(--fg-4)}
+.feed-more{padding:7px 14px;border:1px solid var(--rule-2);border-radius:3px;background:transparent;
+  color:var(--fg-2);font:600 11.5px/1 var(--sans);cursor:pointer;transition:.16s var(--ease)}
+.feed-more:hover{color:var(--acid);border-color:rgba(216,244,60,.45);background:rgba(216,244,60,.08)}
+.feed-end{display:none;font:500 11px/1 var(--mono);letter-spacing:.06em;color:var(--fg-4)}
+.feed-end.on{display:block}
+.feed-sentinel{position:absolute;inset:auto 0 0;height:1px}
+
+footer{margin-top:88px;border-top:1px solid var(--rule);background:var(--ink-2)}
+.foot{padding:44px 0 56px;display:flex;flex-direction:column;gap:28px}
+.foot-notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 40px}
+.foot-b{display:flex;flex-direction:column;gap:9px;padding-left:14px;border-left:1px solid var(--rule)}
+.foot-k{font:600 10.5px/1 var(--mono);letter-spacing:.1em;color:var(--fg-4)}
+.foot-v{font-size:12.5px;line-height:1.82;color:var(--fg-3)}
+.foot-v b{color:var(--fg-2);font-weight:600}
+.foot-meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px 30px;padding-top:22px;border-top:1px solid var(--rule)}
+.foot-m{display:flex;align-items:baseline;gap:9px;font:400 11.5px/1.6 var(--mono)}
+.foot-m span{flex:none;color:var(--fg-4);letter-spacing:.08em}
+.foot-m b{color:var(--fg-2);font-weight:500;min-width:0}
+.srcs{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.src{font:500 10.5px/1 var(--mono);letter-spacing:.06em;padding:6px 9px;border:1px solid var(--rule);color:var(--fg-4);border-radius:3px}
+@media(max-width:860px){.foot-notes{grid-template-columns:1fr;gap:20px}
+  .foot-b{padding-left:12px}
+  .srcs{margin-left:0}}
+
+.bd{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:.32s var(--ease)}
+.bd.on{opacity:1;pointer-events:auto}
+
+.dw{
+  position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);z-index:121;background:var(--ink-2);
+  border-left:1px solid var(--rule);transform:translateX(101%);transition:.44s var(--ease-out);
+  display:flex;flex-direction:column
+}
+.dw.on{transform:none;box-shadow:-30px 0 80px -20px rgba(0,0,0,.9)}
+.dw-h{flex:none;display:flex;align-items:flex-start;gap:14px;padding:18px 22px 15px;border-bottom:1px solid var(--rule)}
+.dw-t{flex:1;min-width:0}
+.dw-t h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.02em}
+.dw-s{margin:6px 0 0;font:400 11.5px/1.6 var(--mono);color:var(--fg-4)}
+.dw-s:empty{display:none}
+.dw-x{flex:none;width:30px;height:30px;border:1px solid var(--rule);background:transparent;color:var(--fg-3);
+  cursor:pointer;border-radius:4px;font-size:12px;line-height:1;display:grid;place-items:center;
+  transition:.16s var(--ease);padding:0}
+.dw-x:hover{color:var(--fg);border-color:var(--rule-2);background:var(--paper)}
+.dw-bar{flex:none;padding:12px 22px;border-bottom:1px solid var(--rule)}
+.dw-bar:empty{display:none}
+.dw-b{flex:1;overflow-y:auto;padding:18px 22px 22px;display:flex;flex-direction:column;gap:14px}
+.dw-f{flex:none;display:flex;align-items:center;gap:9px;padding:13px 22px;border-top:1px solid var(--rule);
+  background:rgba(255,255,255,.015)}
+.dw-f:empty{display:none}
+.dw-f .btn-acid{flex:1;justify-content:center}
+
+.ui-hint{margin:0;font-size:12.5px;line-height:1.75;color:var(--fg-4)}
+.ui-hint b{color:var(--fg-2)}
+.ui-hint code{font-family:var(--mono);font-size:11.5px;color:var(--acid);background:rgba(216,244,60,.08);
+  border:1px solid rgba(216,244,60,.2);padding:1px 6px;border-radius:3px}
+.ui-field{display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;
+  border:1px solid var(--rule);border-radius:4px;background:var(--paper);transition:.16s var(--ease)}
+.ui-field:focus-within{border-color:rgba(216,244,60,.45)}
+.ui-field svg{width:13px;height:13px;color:var(--fg-4);flex:none}
+.ui-field input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:none;
+  color:var(--fg);font-family:var(--sans);font-size:14px}
+.ui-field input::placeholder{color:var(--fg-4)}
+
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration,
+input[type=search]::-webkit-search-results-button,
+input[type=search]::-webkit-search-results-decoration{-webkit-appearance:none;appearance:none;display:none}
+.ui-field .xs{display:none}
+.ui-field input:not(:placeholder-shown) + .xs{display:grid}
+.ui-list{display:flex;flex-direction:column;max-height:calc(100vh - 320px);overflow-y:auto}
+.ui-item{display:flex;align-items:center;gap:11px;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.045);
+  cursor:pointer;transition:.14s var(--ease)}
+.ui-item:hover{background:var(--paper)}
+.ui-item.on{background:rgba(56,217,92,.06);cursor:default}
+.ui-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.ui-t1{font-size:13px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ui-t2{font:400 10.5px/1.5 var(--mono);color:var(--fg-4);overflow-wrap:anywhere}
+.ui-p{flex:none;font:600 11.5px/1 var(--mono);color:var(--amber)}
+.ui-a{flex:none;font:600 10.5px/1 var(--mono);letter-spacing:.05em;color:var(--fg-4);
+  border:1px solid var(--rule);border-radius:2px;padding:4px 7px}
+.ui-item.on .ui-a{color:var(--green);border-color:rgba(56,217,92,.34)}
+.ui-x{flex:none;width:28px;height:28px;border:1px solid var(--rule);background:transparent;color:var(--fg-4);
+  border-radius:3px;cursor:pointer;display:grid;place-items:center;padding:0;transition:.16s var(--ease)}
+.ui-x svg{width:11px;height:11px}
+.ui-x:hover{color:var(--red);border-color:rgba(255,59,48,.5);background:rgba(255,59,48,.1)}
+.ui-empty{padding:30px 12px;text-align:center;font:400 12.5px/1.7 var(--mono);color:var(--fg-4)}
+.ui-empty code{font-family:var(--mono);color:var(--acid)}
+.dw-b textarea{min-height:190px}
+
+textarea{
+  width:100%;min-height:200px;resize:vertical;background:#0b0b0e;border:1px solid var(--rule);border-radius:4px;
+  color:var(--fg);font:400 12px/1.7 var(--mono);padding:14px;transition:.2s var(--ease)
+}
+textarea::placeholder{color:var(--fg-4)}
+textarea:focus{outline:none;border-color:rgba(216,244,60,.5)}
+.err{color:#ff8c84}.ok{color:var(--green)}
+
+.toast{
+  position:fixed;left:50%;bottom:32px;transform:translate(-50%,calc(100% + 44px));opacity:0;pointer-events:none;z-index:200;
+  background:#131317;border:1px solid var(--rule-2);border-left:3px solid var(--acid);
+  color:var(--fg);font:500 12.5px/1 var(--mono);letter-spacing:.03em;padding:13px 20px;border-radius:4px;
+  box-shadow:0 24px 60px -14px rgba(0,0,0,.9);transition:.42s var(--ease-out);
+  max-width:90vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.toast.on{transform:translate(-50%,0);opacity:1}
+.toast.tc-ok{border-left-color:var(--green)}
+.toast.tc-err{border-left-color:var(--red)}
+/* 悬停说明浮层：initTips() 会建一个 <div class="tip"> 并给它加 .on。
+   这里**必须有 position:fixed** —— 少了这条它就是个普通块级元素，会被塞在 <body> 末尾，
+   于是永远显示在页面最底部（滚不到底就完全看不见），而不是贴着鼠标所在的那个控件。 */
+.tip{
+  position:fixed;left:0;top:0;z-index:600;pointer-events:none;
+  max-width:min(420px,calc(100vw - 32px));
+  padding:7px 11px;border:1px solid var(--rule-2);border-radius:5px;
+  background:rgba(10,10,12,.97);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--fg-2);font:400 12px/1.62 var(--sans);
+  box-shadow:0 14px 36px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(3px);
+  transition:opacity .12s var(--ease),transform .12s var(--ease);
+  white-space:normal;word-break:break-word
+}
+.tip.on{opacity:1;transform:none}
+.v-want{font:600 10px/1 var(--mono);letter-spacing:.06em;color:var(--fg-4);border:1px solid var(--rule);
+  border-radius:2px;padding:3px 6px;cursor:pointer;white-space:nowrap;transition:.11s var(--ease)}
+.v-want:hover{color:var(--acid);border-color:var(--acid)}
+.v-want.on{color:var(--acid);border-color:rgba(216,244,60,.4);background:rgba(216,244,60,.09)}
+
+.v-want.locked{color:var(--fg-4);border-style:dashed;cursor:not-allowed;opacity:.62}
+.v-want.locked:hover{color:var(--fg-4);border-color:var(--rule)}
+
+.rail::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;
+  width:var(--sp,0);background:var(--acid);transition:width .1s linear}
+
+#grid{scroll-margin-top:var(--stick,252px)}
+
+.sel-wrap{position:relative;display:flex;align-items:center;height:100%;min-width:0}
+.sel-lab{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-native{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.sel-btn{
+  display:inline-flex;align-items:center;gap:8px;height:100%;padding:0;
+  background:transparent;border:0;color:var(--fg-2);cursor:pointer;
+  font:400 11.5px/1 var(--mono);letter-spacing:.04em;white-space:nowrap;
+  min-width:0;overflow:hidden;transition:color .13s var(--ease)
+}
+.sel-btn:hover{color:var(--fg)}
+.sel-wrap.has .sel-btn,.sel-wrap.open .sel-btn{color:var(--acid)}
+.sel-arw{width:9px;height:9px;flex:none;transition:transform .16s var(--ease);
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%237c86a0' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M3 4.7L6 7.7l3-3'/></svg>") center/contain no-repeat}
+.sel-wrap.open .sel-arw{transform:rotate(180deg)}
+
+.sel-panel{
+  position:fixed;z-index:500;max-height:min(58vh,420px);overflow:auto;overscroll-behavior:contain;
+  background:#0e0e13;border:1px solid var(--rule-2);border-radius:6px;
+  box-shadow:0 26px 64px -14px rgba(0,0,0,.94);padding:5px;
+  opacity:0;transform:translateY(-7px) scale(.985);transform-origin:top center;pointer-events:none;
+  transition:opacity .16s var(--ease),transform .24s var(--ease-out)
+}
+.sel-panel::-webkit-scrollbar{width:8px}
+.sel-panel::-webkit-scrollbar-thumb{background:var(--rule-2);border-radius:4px}
+.sel-panel.on{opacity:1;transform:none;pointer-events:auto}
+.sel-opt{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;
+  background:transparent;border:0;border-radius:3px;padding:8px 10px;cursor:pointer;
+  color:var(--fg-3);font:400 12.5px/1.35 var(--sans);text-align:left;white-space:nowrap
+}
+.sel-opt:hover{background:rgba(255,255,255,.055);color:var(--fg)}
+.sel-opt.on{color:var(--acid)}
+.sel-opt.on span::after{content:" ✓";font-size:11px}
+.sel-empty{padding:9px 10px;color:var(--fg-4);font:400 12.5px/1.4 var(--sans)}
+.sel-search{padding:2px 4px 8px;border-bottom:1px solid var(--rule);margin-bottom:4px}
+.sel-search input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:3px;
+  color:var(--fg);font-family:var(--sans);font-size:12.5px;padding:7px 9px;outline:none}
+.sel-search input:focus{border-color:var(--acid)}
+
+.want-chip{
+  display:flex;align-items:center;gap:8px;cursor:pointer;height:46px;padding:0 16px;
+  border-left:1px solid var(--rule);font:600 11.5px/1 var(--mono);letter-spacing:.06em;
+  color:var(--acid);transition:.18s var(--ease);white-space:nowrap
+}
+.want-chip:hover{background:rgba(216,244,60,.08)}
+.want-chip b{font-weight:700}
+.want-chip.zero{color:var(--fg-4)}
+.want-chip.zero:hover{color:var(--fg-3);background:var(--paper)}
+@keyframes hlF{0%{box-shadow:0 0 0 2px rgba(216,244,60,.55)}100%{box-shadow:0 0 0 2px rgba(216,244,60,0)}}
+
+#toTop{
+  position:fixed;right:26px;bottom:26px;z-index:180;width:42px;height:42px;padding:0;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:rgba(14,14,19,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--rule-2);border-radius:50%;color:var(--fg-3);
+  opacity:0;transform:translateY(10px) scale(.94);pointer-events:none;
+  transition:opacity .22s var(--ease),transform .22s var(--ease),color .14s var(--ease),border-color .14s var(--ease);
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.85)
+}
+#toTop.on{opacity:1;transform:none;pointer-events:auto}
+#toTop:hover{color:var(--acid);border-color:rgba(216,244,60,.45)}
+#toTop svg{width:15px;height:15px}
+
+#drawer.on ~ #toTop{opacity:0;pointer-events:none}
+@media(max-width:680px){#toTop{right:14px;bottom:14px;width:38px;height:38px}}
+
+@media print{
+  body::before,body::after,.rail,.console,.dw,.bd,.toast,.xs,#toTop{display:none!important}
+  body{background:#fff;color:#000}
+}
+</style>
+
+<style>
+.cfg-warn{display:none;align-items:center;gap:10px;margin:0 0 14px;padding:9px 12px;border-radius:4px;
+  border:1px solid rgba(255,160,48,.34);background:rgba(255,160,48,.07);font:400 12px/1.5 var(--sans);color:var(--fg-2)}
+.cfg-warn.on{display:flex}
+.cfg-warn-i{flex:none;width:15px;height:15px;border-radius:50%;background:var(--amber);color:#1a1206;
+  font:700 10px/15px var(--sans);text-align:center}
+.cfg-warn-b{flex:none;margin-left:auto;padding:5px 10px;border:1px solid rgba(255,160,48,.5);border-radius:3px;
+  background:transparent;color:var(--amber);font:600 11px/1 var(--sans);cursor:pointer;transition:.16s var(--ease)}
+.cfg-warn-b:hover{background:rgba(255,160,48,.16)}
+.cfg-warn-x{flex:none;width:20px;height:20px;padding:0;border:0;border-radius:3px;background:transparent;
+  color:var(--fg-4);font:400 11px/1 var(--mono);cursor:pointer;transition:.16s var(--ease)}
+.cfg-warn-x:hover{color:var(--fg);background:var(--paper-2)}
+.bd-deal{color:#0b0d02;background:var(--amber);border-color:var(--amber);font-weight:800}
+.tag.off{color:var(--fg-4);border-color:var(--rule);cursor:not-allowed;opacity:.72}
+/* 折扣数据过期：琥珀虚线 —— 可点，点了触发在线获取 */
+.tag.stale{color:var(--amber);border-color:rgba(255,160,48,.4);border-style:dashed}
+.tag.stale:hover{color:var(--amber);border-color:rgba(255,160,48,.65);background:rgba(255,160,48,.08)}
+/* 正在在线获取：转圈交给呼吸的点，其余时间保持安静 */
+.tag.dealing{color:var(--fg-3);border-color:var(--rule-2);pointer-events:none}
+.tag.dealing i{animation:syncPulse .9s var(--ease) infinite}
+#grid{overflow-anchor:none}
+.v-acts{display:flex;align-items:center;gap:6px}
+/* 已拥有标记：卡片右上角的对号。悬停时圆环先勾出来、对号随后跟上（苹果那套成功动效）；
+   已拥有时保持实心绿，点一下就是取消 —— 不用再在底部塞一个「标记已拥有」按钮 */
+.v-mark{position:absolute;top:11px;right:11px;z-index:3;width:30px;height:30px;padding:0;border:0;background:none;
+  cursor:pointer;opacity:0;pointer-events:none;transform:scale(.72);
+  transition:opacity .18s var(--ease),transform .24s var(--ease)}
+.v:hover .v-mark,.v:focus-within .v-mark,.v-mark.on{opacity:1;pointer-events:auto;transform:none}
+.v-mark svg{display:block;width:30px;height:30px}
+.v-mark circle,.v-mark path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.v-mark circle{stroke:var(--rule-2);stroke-width:1.6;stroke-dasharray:82;stroke-dashoffset:82;
+  transition:stroke-dashoffset .3s var(--ease),stroke .18s var(--ease),fill .18s var(--ease)}
+.v-mark path{stroke:var(--fg-2);stroke-width:2.4;stroke-dasharray:17;stroke-dashoffset:17;
+  transition:stroke-dashoffset .22s var(--ease) .15s,stroke .18s var(--ease)}
+.v:hover .v-mark circle,.v:focus-within .v-mark circle,.v-mark.on circle{stroke-dashoffset:0}
+.v:hover .v-mark path,.v:focus-within .v-mark path,.v-mark.on path{stroke-dashoffset:0}
+.v-mark:hover circle{stroke:var(--green);fill:rgba(56,217,92,.14)}
+.v-mark:hover path{stroke:var(--green)}
+.v-mark.on circle{fill:var(--green);stroke:var(--green)}
+.v-mark.on path{stroke:#08240f}
+.pill{font:600 10px/1 var(--mono);letter-spacing:.06em;padding:6px 9px;border-radius:4px;cursor:pointer;
+  border:1px solid var(--rule);background:transparent;color:var(--fg-3);transition:.16s var(--ease);white-space:nowrap}
+.pill:hover{color:var(--fg);border-color:var(--rule-2);background:var(--paper)}
+.pill.v-want.on{color:var(--acid);border-color:rgba(216,244,60,.4);background:rgba(216,244,60,.09)}
+.pill.v-want.locked,.pill:disabled{opacity:.55;cursor:not-allowed;border-style:dashed;color:var(--fg-4)}
+.pill:disabled:hover{background:transparent;border-color:var(--rule)}
+.ui-got{flex:none;background:none;border:1px solid var(--rule);border-radius:4px;color:var(--fg-3);
+  font:600 10.5px/1 var(--sans);padding:5px 8px;cursor:pointer;transition:.16s var(--ease)}
+.ui-got:hover{color:var(--green);border-color:rgba(56,217,92,.45);background:rgba(56,217,92,.1)}
+@keyframes vFlash{0%{box-shadow:inset 0 0 0 2px rgba(216,244,60,.5)}100%{box-shadow:inset 0 0 0 2px rgba(216,244,60,0)}}
+.v.flash{animation:vFlash .6s ease-out 1}
+.foot-m i{font-style:normal;color:var(--fg-4);font-size:10.5px;align-self:center}
+.bd-back{color:#8ce3f2;border-color:rgba(56,208,232,.4);background:rgba(56,208,232,.12)}
+.v-deal-txt{color:var(--amber)}
+.v-was{margin-left:7px;color:var(--fg-4);font:400 11.5px/1 var(--mono);text-decoration:line-through}
+.ba{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0}
+.ba-sec{display:flex;flex-direction:column;gap:7px}
+.ba-sec.grow{flex:1;min-height:0}
+.ba-h{display:flex;align-items:center;gap:8px;font:600 9.5px/1 var(--mono);letter-spacing:.14em;color:var(--fg-4)}
+.ba-h b{margin-left:auto;font:500 10px/1 var(--mono);letter-spacing:.04em;color:var(--fg-3)}
+.ba-h b i{font-style:normal;color:var(--acid)}
+.ba-hud{position:relative;display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border:1px solid var(--rule-2);border-radius:4px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);transition:border-color .18s var(--ease),box-shadow .18s var(--ease)}
+.ba-hud.open,.ba-hud:focus-within{border-color:rgba(216,244,60,.5);box-shadow:inset 0 0 0 1px rgba(0,0,0,.4),0 0 0 3px rgba(216,244,60,.07)}
+.ba-pre{flex:none;font:700 13px/1 var(--mono);color:var(--acid);opacity:.85}
+.ba-hud input{flex:1;min-width:0;height:100%;margin:0;padding:0;border:0;background:transparent;outline:none;border-radius:0;
+  font:500 14px/1 var(--mono);letter-spacing:.02em;color:var(--fg);caret-color:var(--acid)}
+.ba-hud input::placeholder{color:var(--fg-4);letter-spacing:.04em}
+/* 入列确认：候选面板正盖着暂存区，车名在 HUD 上闪一下 —— 加没加进去当场可见 */
+.ba-flash{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;
+  font:600 11px/1 var(--mono);color:var(--green);background:rgba(56,217,92,.12);
+  border:1px solid rgba(56,217,92,.4);border-radius:3px;padding:5px 9px;white-space:nowrap;
+  animation:baFlash .18s var(--ease-out)}
+.ba-flash.out{opacity:0;transform:translateY(-50%) translateX(8px);
+  transition:opacity .22s var(--ease),transform .22s var(--ease)}
+@keyframes baFlash{from{opacity:0;transform:translateY(-50%) translateX(-8px)}to{opacity:1;transform:translateY(-50%)}}
+.sel-opt > span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sel-opt em{font:500 10.5px/1 var(--mono);font-style:normal;color:var(--amber);opacity:.85;margin-left:auto;padding-left:14px;
+  flex:none}
+.sel-opt.on em{color:var(--acid);opacity:1}
+.ba-list{display:flex;flex-direction:column;gap:5px;flex:1;min-height:0;max-height:52vh;overflow:auto;overscroll-behavior:contain}
+.ba-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);
+  animation:pbIn .26s var(--ease-out) backwards;transition:border-color .16s var(--ease),background .16s var(--ease)}
+.ba-row:hover{border-color:var(--rule-2);background:var(--paper-2)}
+.ba-row.out{animation:pbOut .16s var(--ease) forwards}
+.ba-row.dup{animation:dupFlash .5s var(--ease) 1}
+.ba-row:hover .ba-x{opacity:1}
+.ba-n{flex:none;width:18px;font:500 10px/1 var(--mono);color:var(--fg-4);text-align:right}
+.ba-t{flex:1;min-width:0}
+.ba-t1{display:block;font:600 12.5px/1.35 var(--sans);color:var(--fg);overflow-wrap:anywhere}
+.ba-t2{display:block;margin-top:3px;font:400 10.5px/1.45 var(--mono);color:var(--fg-4);overflow-wrap:anywhere}
+.ba-s{flex:none;font:600 10.5px/1 var(--mono);letter-spacing:.04em;color:var(--acid)}
+.ba-x{flex:none;width:22px;height:22px;padding:0;border:0;border-radius:3px;background:transparent;color:var(--fg-4);
+  font:500 10px/1 var(--mono);cursor:pointer;opacity:0;
+  transition:opacity .16s var(--ease),color .16s var(--ease),background .16s var(--ease)}
+.ba-x:hover{color:var(--red);background:rgba(255,59,48,.12)}
+.ba-empty{flex:1;display:grid;place-items:center;padding:14px 12px;border:1px dashed var(--rule);border-radius:4px;
+  position:relative;color:var(--fg-4);text-align:center;
+  transition:opacity .2s var(--ease),filter .2s var(--ease),border-color .2s var(--ease);
+  background:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px) 0 0/100% 26px,
+             linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px) 0 0/26px 100%}
+.ba-empty::before,.ba-empty::after{content:"";position:absolute;width:16px;height:16px;pointer-events:none;
+  border:0 solid rgba(216,244,60,.45)}
+.ba-empty::before{top:7px;left:7px;border-top-width:1px;border-left-width:1px}
+.ba-empty::after{bottom:7px;right:7px;border-bottom-width:1px;border-right-width:1px}
+.ba:has(.ba-hud:focus-within) .ba-empty{border-color:rgba(216,244,60,.3);color:var(--fg-3)}
+/* 候选弹层展开时，整个空态 HUD 退到幕后 —— 它只是背景板，别跟弹层抢注意力 */
+.ba.cand .ba-empty{opacity:.22;filter:saturate(.5)}
+.ba-huds{display:flex;align-items:center;justify-content:center;gap:8px;
+  font:600 9px/1 var(--mono);letter-spacing:.24em;color:var(--fg-4)}
+.ba-huds i{width:5px;height:5px;border-radius:50%;background:var(--acid);animation:syncPulse 1.6s var(--ease) infinite}
+.ba-hudc{margin:10px 0 7px;font:700 26px/1 var(--mono);letter-spacing:.08em;color:var(--rule-2);transition:color .2s var(--ease)}
+.ba:has(.ba-hud:focus-within) .ba-hudc{color:rgba(216,244,60,.4)}
+.ba-hudt{font:500 12px/1 var(--sans);color:var(--fg-3)}
+.ba-hudk{margin-top:10px;font:400 10px/1 var(--mono);color:var(--fg-4)}
+.ba-hudk kbd{display:inline-block;min-width:15px;margin:0 3px;padding:3px 4px;border:1px solid var(--rule-2);
+  border-radius:3px;font:600 9px/1 var(--mono);color:var(--fg-3);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.5)}
+@keyframes pbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pbOut{to{opacity:0;transform:translateY(-4px)}}
+@keyframes dupFlash{0%,100%{border-color:var(--rule)}35%{border-color:rgba(255,160,48,.7);background:rgba(255,160,48,.1)}}
+#sync{display:flex;align-items:center;gap:7px;font:500 10.5px/1 var(--mono);letter-spacing:.06em;color:var(--fg-4);white-space:nowrap}
+#sync i{font-style:normal;width:6px;height:6px;border-radius:50%;background:var(--fg-4);flex:none;transition:.2s var(--ease)}
+#sync.ok i{background:var(--green)}
+#sync.busy i{background:var(--amber)}
+#sync,#sync.warn,#sync.ok,#sync.err{cursor:pointer}
+#sync:hover{color:var(--fg)}
+#sync span{text-decoration:underline;text-decoration-color:transparent;text-underline-offset:3px;
+  transition:text-decoration-color .16s var(--ease)}
+#sync:hover span{text-decoration-color:currentColor}
+#sync.warn{color:var(--amber)}
+#sync.warn i{background:var(--amber)}
+#sync.busy i{animation:syncPulse 1.1s var(--ease) infinite}
+@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.35}}
+#sync.err{color:#ff8c84}
+#sync.err i{background:var(--red)}
+@media(max-width:1180px){#sync{display:none}}
+</style>
+</head>
+<body>
+<div id="glow" aria-hidden="true"></div>
+
+<div class="rail">
+  <div class="wrap rail-in">
+    <div class="rail-brand"><b>洛圣都车库档案</b><i>LS · GARAGE INDEX</i></div>
+    <div class="rail-sp"></div>
+    <div class="rail-acts">
+      <span id="sync" title="配置文件 = GTA车辆持有配置.yaml：已加载后每次改动自动写回；点一下选择或更换这个文件（只授权这一个）"><i></i><span id="syncTxt">读取配置…</span></span>
+      <button class="rail-btn" id="btnWant" title="计划购买：只记你还没买的车，点开看买点与价格"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.6 2.9h1.5l1.6 7.4h6.4l1.3-5.2H4.4"/><circle cx="6.3" cy="13" r="1.1"/><circle cx="11.6" cy="13" r="1.1"/></svg><span>计划购买清单</span><b class="n" id="railWantN">0</b></button>
+      <button class="rail-btn pri" id="btnAdd" title="添加已拥有：搜索车名，点一下即标记为已拥有"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3.2v9.6M3.2 8h9.6"/></svg><span>添加已拥有</span></button>
+      <button class="rail-btn" id="btnMore2" aria-haspopup="true" aria-expanded="false" title="更多：批量标记 / 导入导出配置"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="3.4" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="12.6" cy="8" r="1.5"/></svg><span>更多</span></button>
+      <div class="rail-menu" id="railMenu" role="menu">
+        <div class="rail-menu-h">批量与配置</div>
+        <button id="btnImport" title="从配置文件导入，覆盖当前持有记录"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2.5M5 6l3-3.5L11 6M2.5 11.5v1.2A1.3 1.3 0 003.8 14h8.4a1.3 1.3 0 001.3-1.3v-1.2"/></svg>导入配置</button>
+        <button id="btnExport" title="把当前持有记录存成一份 YAML 副本"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5V11M5 7.5L8 11l3-3.5M2.5 11.5v1.2A1.3 1.3 0 003.8 14h8.4a1.3 1.3 0 001.3-1.3v-1.2"/></svg>导出配置</button>
+        <button id="btnExportTxt" title="纯文本清单，一行一辆，改完粘回「批量标记」即可"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1.8H4.2A1.3 1.3 0 002.9 3.1v9.8a1.3 1.3 0 001.3 1.3h7.6a1.3 1.3 0 001.3-1.3V5.4z"/><path d="M9 1.8v3.6h4.1M5.6 9h4.8M5.6 11.6h3.2"/></svg>导出 TXT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">GTA Online · 载具数据库 <s>／ 数据同步 2026.09 · 含科兹中心豪劫</s></div>
+    <h1>
+      <span class="l1">GTA 线上载具库</span>
+      <span class="l2">LOS SANTOS GARAGE INDEX</span>
+    </h1>
+    <p class="lede">
+      线上全部 <b id="s-total">—</b> 辆载具，<b id="s-buy">—</b> 辆可直接购买。
+    </p>
+    <div class="specs">
+      <div class="spec"><div class="spec-n" id="k-total">—</div><div class="spec-l">线上可获取</div></div>
+      <div class="spec spec-w"><div class="spec-n" id="k-buy">—</div><div class="spec-l">可直接购买</div></div>
+      <div class="spec spec-g"><div class="spec-n"><span id="k-owned">0</span><i id="k-owned-pct"></i></div><div class="spec-l">你已拥有</div></div>
+      <div class="spec"><div class="spec-n" id="k-want">0</div><div class="spec-l">计划购买</div></div>
+      <div class="spec spec-a"><div class="spec-n" id="k-class">—</div><div class="spec-l">官方分类</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="s1">
+    <div class="wrap">
+      <div class="s-head">
+        <div class="s-idx">01</div>
+        <div>
+          <h2 class="s-t">载具记录</h2>
+          <p class="s-en">Vehicle Records</p>
+          <p class="s-d">搜中文名、英文名、厂商、官方类名或购买渠道都能命中。勾选＝已拥有，「＋ 加入计划购买」进计划购买。</p>
+        </div>
+      </div>
+
+      <div class="console">
+        <div class="c-row">
+          <div class="c-field grow has" id="searchWrap">
+            <svg class="ic" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/></svg>
+            <input id="q" type="search" placeholder="车名 / 厂商 / 类名 / 渠道 · 支持拼音与首字母（kalin、kls95、kl）" autocomplete="off" spellcheck="false"
+                   title="支持中文名、英文名、厂商、官方类名（Supers）、购买渠道（Warstock）。多个词用空格分开、顺序随意；拼不全会自动模糊匹配">
+            <button class="xs" id="qClear" aria-label="清除" title="清除搜索内容">✕</button>
+          </div>
+          <div class="c-field sel"><span class="c-lab">排序</span><select class="c-sel" id="sort"
+              title="排序方式：官方分类 / 价格 / 中文名">
+            <option value="class">官方分类</option>
+            <option value="price-desc">价格 ↓</option>
+            <option value="price-asc">价格 ↑</option>
+          </select></div>
+        </div>
+        <div class="c-row">
+          <div class="c-field sel"><span class="c-lab">分类</span><select class="c-sel" id="fClass"
+              title="按官方车辆分类筛选，如超级跑车、跑车、肌肉车"></select></div>
+          <div class="c-field sel"><span class="c-lab">厂商</span><select class="c-sel" id="fBrand"
+              title="按厂商筛选，如佩嘉西、卡林、绝致"></select></div>
+          <div class="c-field sel"><span class="c-lab">购买</span><select class="c-sel" id="fDealer"
+              title="按购买地点筛选，如传奇车业、南圣安地列斯超级汽车、军火大亨"></select></div>
+        </div>
+        <div class="c-row">
+          <div class="c-tags" id="fMods"></div>
+          <div class="c-right">
+            <span class="own-chip zero" id="ownChip" title="管理已拥有：查看与移除已标记的载具"><b id="ownN">0</b> 辆已拥有</span>
+            <span class="want-chip zero" id="wantChip" title="计划购买：点一下打开清单"><b id="wantN">0</b> 项计划购买</span>
+            <span class="c-count" id="count" title="当前筛选结果 / 线上可获取总数">—</span>
+          </div>
+        </div>
+        <div class="c-row">
+          <label class="c-sw" id="tHide" title="隐藏已经勾选为「已拥有」的载具，只留下还没买的"><span class="sw"></span>隐藏已拥有</label>
+          <label class="c-sw" id="tOnly" title="只看已勾选为「已拥有」的载具，方便核对车库"><span class="sw"></span>只看已拥有</label>
+          <label class="c-sw" id="tWant" title="只看计划购买清单里的载具"><span class="sw"></span>只看计划购买</label>
+          <label class="c-sw" id="tBuy" title="只显示有明确价格、可直接用 GTA$ 购买的载具"><span class="sw"></span>只可购买</label>
+          <div class="c-right"><button class="btn btn-xs" id="btnReset" title="重置全部筛选条件、排序与关键词">重置</button></div>
+        </div>
+      </div>
+
+      <div class="cfg-warn" id="cfgWarn"><span class="cfg-warn-i" aria-hidden="true">!</span>
+        <span id="cfgWarnTxt"></span>
+        <button type="button" class="cfg-warn-b" id="cfgWarnBind">绑定配置文件</button>
+        <button type="button" class="cfg-warn-x" id="cfgWarnLater" aria-label="先不绑定">✕</button></div>
+      <div class="grid pre" id="grid"></div>
+      <div class="feed" id="feed"><span class="feed-n" id="feedN"></span>
+        <button type="button" class="feed-more" id="feedMore" hidden>继续加载</button>
+        <span class="feed-end" id="feedEnd">已到底</span>
+        <div class="feed-sentinel" id="feedSentinel" aria-hidden="true"></div></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="foot-notes">
+      <div class="foot-b"><div class="foot-k">数据来源</div>
+        <div class="foot-v">车辆数据抓取自 <b>GTAOL 中文知识库</b>（docs.82lf.cn），中文名、购买地点、价格、圈速、极速、首发版本与上线日期同源；厂商与车型中文名交叉校验自查表。每周折扣为事实数据（车辆 + 折扣百分比），取自 gtaboom.com 的当周更新文章与人工录入，不含原文文字。<br>许可：代码 MIT；车辆与折扣数据按 <b>CC BY-NC-SA 4.0</b> 分发（署名 · 非商业 · 相同方式共享）。非官方粉丝作品，与 Rockstar Games / Take-Two 无关联。</div></div>
+      <div class="foot-b"><div class="foot-k">统计口径</div>
+        <div class="foot-v">「线上可获取」= 可通过购买、奖励、活动任务或资产附带获得的载具，不含仅线下模式、仅 NPC 使用及无法保留的载具。</div></div>
+      <div class="foot-b"><div class="foot-k">记录方式</div>
+        <div class="foot-v">持有与采购记录存在<b>工程根目录的配置文件</b>里（页面改动即时写回），换设备只要带上这个文件。页面本身不存任何数据。</div></div>
+    </div>
+    <div class="foot-meta">
+      <div class="foot-m"><span>更新</span><b id="gen">—</b><i id="genOf">—</i></div>
+      <div class="foot-m"><span>配置</span><b id="cfgRev">—</b></div>
+      <div class="foot-m"><span>数据库</span><b id="foot-total">—</b></div>
+      <div class="srcs" id="srcs"></div>
+    </div>
+  </div>
+</footer>
+
+<div class="bd" id="bd"></div>
+<aside class="dw" id="drawer" aria-hidden="true" role="dialog" aria-modal="true">
+  <header class="dw-h">
+    <div class="dw-t"><h3 id="dTitle">标题</h3><p class="dw-s" id="dSub"></p></div>
+    <button class="dw-x" id="dClose" aria-label="关闭" title="关闭面板（Esc）">✕</button>
+  </header>
+  <div class="dw-bar" id="dBar"></div>
+  <div class="dw-b" id="dBody"></div>
+  <footer class="dw-f" id="dFoot"></footer>
+</aside>
+
+<input type="file" id="fileIn" accept=".yaml,.yml,.txt" style="display:none">
+<div class="toast" id="toast"></div>
+<button id="toTop" type="button" aria-label="回到顶部" title="回到顶部（长页一键回顶）">
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3.4M4 7.2L8 3.2l4 4"/></svg>
+</button>
+<script>
+/*__DATA__*/
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => n == null || n === '' ? '—' : '$' + Number(n).toLocaleString('en-US');
+const norm = s => String(s || '').toLowerCase().replace(/[\s\-_·・（）()［］\[\]]/g, '');
+const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches);
+
+const VS = DB.vehicles;
+const STATS = DB.stats;
+const STATSBUY = STATS.buyable;
+const TODAY = new Date().toISOString().slice(0, 10);
+const pad2 = n => (n < 10 ? '0' : '') + n;
+const localDate = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+const DEAL_TODAY = localDate(new Date());
+/* 折扣数据 = 构建期内联（DB.deals）与浏览器缓存（gta-deals-cache-v1）二选一，
+   谁在有效期内用谁；过期数据保留但只作「等待更新」的入口，不冒充本周 */
+let DEALS = null, DEALS_FRESH = false, DEAL_STALE = false, DEAL_OF = new Map();
+function dealUsable(d){ return !!(d && (d.items || []).length && (!d.to || TODAY <= d.to)); }
+function setDeals(d){
+  DEALS = d || null;
+  DEALS_FRESH = dealUsable(DEALS);
+  DEAL_STALE = !!DEALS && !DEALS_FRESH;
+  DEAL_OF = new Map(DEALS_FRESH ? DEALS.items.map(x => [x.id, x]) : []);
+}
+const DEAL_CACHE = (function(){
+  try{ return JSON.parse(localStorage.getItem('gta-deals-cache-v1') || 'null'); }catch(e){ return null; }
+})();
+setDeals(dealUsable(DEAL_CACHE) ? DEAL_CACHE : (DB.deals || null));
+
+/* 滚动全部交给浏览器原生能力：
+   位置由 scroll-margin-top 让出吸顶控制台占的高度，动作由 scrollIntoView 完成。
+   自己写 rAF 插值 + 夹取 + 兜底定时器的那套，正是「落点歪 / 画面抖」的来源 —— 删掉。 */
+const SMOOTH = { behavior: 'smooth', block: 'start' };
+/* 回位飞行期内禁止补卡：平滑滚动最怕半路 innerHTML 被换掉（直接打断） */
+let feedLock = 0, lastFeedY = 0;
+function scrollToEl(el, smooth){
+  if(!el) return;
+  /* 长距离必须直接跳：从深处回位时列表刚从补卡状态缩回 120 辆，文档骤缩会把
+     scrollY 夹到新上限、哨兵也会在飞行半路触发补卡再次打断 —— 平滑滚动就死在这一帧，
+     表现为「第一次点筛选不回位，第二次才回去」（第二次文档高度已稳定，没人打断它） */
+  const dist = Math.abs(el.getBoundingClientRect().top);
+  if(!smooth || RM || dist > innerHeight * 1.5) el.scrollIntoView({ block: 'start' });
+  else el.scrollIntoView(SMOOTH);
+  feedLock = Date.now() + 700;
+  lastFeedY = window.scrollY || 0;
+}
+function syncStickyOffset(){
+  const c = $('.console');
+  const top = c ? (parseFloat(getComputedStyle(c).top) || 0) + c.getBoundingClientRect().height + 10 : 74;
+  document.documentElement.style.setProperty('--stick', Math.round(top) + 'px');
+}
+
+const MOD_META = {
+  hsw:   { t:'阿浩特别工坊改装', c:'bd-hsw' },
+  benny: { t:'本尼原创汽车工坊改装', c:'bd-benny' },
+  arena: { t:'竞技场之战', c:'bd-arena' },
+  drift: { t:'漂移调校版', c:'bd-drift' }
+};
+const TUNE_KEYS = ['hsw', 'benny', 'arena', 'drift'];
+const MOD_TIP = {
+  hsw:'可在阿浩特别工坊（HSW）做性能升级',
+  benny:'可在本尼原创汽车工坊改装为低趴 / 宽体',
+  arena:'可在竞技场工作室加装武器与竞技改装',
+  drift:'漂移调校版：出厂即为漂移规格'
+};
+const CLS_COLOR = {
+  '超级跑车':'#ff4d4d','跑车':'#ffa03c','肌肉车':'#ffd23c','运动经典':'#c8e64a','SUV':'#38d95c',
+  '轿车':'#38d0a8','紧凑型':'#38d0e8','轿跑':'#4a9eff','摩托车':'#a97bff','越野':'#c98b4b',
+  '商用':'#8b93a1','厢型车':'#8b93a1','军用':'#e05c5c','直升机':'#7bd1ff','飞机':'#7bd1ff',
+  '船':'#4fd1c5','自行车':'#b8c76a','特殊':'#e07bd1'
+};
+const clsColor = c => CLS_COLOR[c] || '#8a8d95';
+const classOf = v => v.class_cn || '其他';
+const SORTS = ['class', 'price-desc', 'price-asc'];
+const sortOK = v => (SORTS.indexOf(v) > -1 ? v : 'class');
+
+const byId = new Map(VS.map(v => [v.id, v]));
+const aliasIdx = new Map();
+VS.forEach(v => {
+  const keys = new Set([v.id, v.en, v.cn, v.brand_en, v.brand_cn, v.model_cn,
+    (v.brand_cn || '') + (v.model_cn || ''), (v.brand_en || '') + ' ' + (v.cn || '')].concat(v.alias || []));
+  keys.forEach(k => { const n = norm(k); if(n && !aliasIdx.has(n)) aliasIdx.set(n, v.id); });
+});
+/* 品牌×车型组合索引：聚合站写的是「Pegassi Zentorno」这类英文全称，
+      别名表里往往只有品牌和车名的独立形式 —— 这里把两种拼法都补上（norm 会吃掉空格，
+      所以 brand+model 与「brand model」天然等价） */
+const brandIdx = new Map();
+VS.forEach(v => {
+  const brands = [v.brand_en, v.brand_cn].filter(Boolean);
+  const models = [v.en, v.cn, v.model_cn].filter(Boolean);
+  brands.forEach(b => models.forEach(mo => {
+    const k = norm(b + mo);
+    if(k && !brandIdx.has(k)) brandIdx.set(k, v.id);
+  }));
+});
+const searchText = new Map(VS.map(v => [v.id, (v.alias || []).concat([
+  v.en, v.brand_en, v.brand_cn, v.model_cn, v.cn, v.dlc, v.dealer, v.channels,
+  v.class_cn, v.class_en, v.proto, v.modshop, v.status]).filter(Boolean).join(' ').toLowerCase()]));
+const fuzzyText = new Map(VS.map(v => [v.id, norm([
+  v.cn, v.en, v.model_cn, v.brand_cn, v.brand_en].concat(v.alias || []).filter(Boolean).join(' '))]));
+/* 拼音索引：[全拼, 首字母]，构建期由 build_site.py 生成，页面不做任何转换。
+   卡林 S95 → ["kalins95", "kls95"]，所以 kalin / kls95 / kalins95 都能命中 */
+const pyIndex = new Map(VS.map(v => [v.id, [norm(v.py || ''), norm(v.pi || '')]]));
+
+function fuzzyScore(hay, q){
+  if(!q || !hay) return 0;
+  let i = 0, last = -1, score = 0;
+  for(let p = 0; p < hay.length && i < q.length; p++){
+    if(hay[p] === q[i]){
+      score += (last >= 0 && p - last === 1) ? 6 : 3;
+      last = p; i++;
+    }
+  }
+  return i === q.length ? score : 0;
+}
+/* 把一行文本认成一辆车：先精确别名 → 再唯一包含 → 最后走统一检索（含拼音） */
+function resolveOne(txt){
+  const n = norm(txt); if(!n) return null;
+  if(aliasIdx.has(n)) return byId.get(aliasIdx.get(n));
+  let hit = null, cnt = 0;
+  for(const [k, id] of aliasIdx){
+    if(k.length >= 3 && (k.includes(n) || n.includes(k))){ hit = id; cnt++; if(cnt > 3) break; }
+  }
+  if(cnt === 1) return byId.get(hit);
+  const r = findVehicles(txt, { limit: 2 }).list;
+  if(r.length === 1) return r[0];
+  if(r.length > 1 && scoreOf(r[0], txt.toLowerCase(), n, searchText.get(r[0].id) || '') >= 900) return r[0];
+  return null;
+}
+/* 拼音/首字母命中打分。同样命中时按「覆盖度」排：查询占索引串的比例越大越精确，
+   于是 kalin 会先给 卡林S95（kalins95，8 字符）而不是 卡林埃弗伦 RS（更长的串） */
+function pyScore(v, nq){
+  if(nq.length < 2) return 0;
+  const e = pyIndex.get(v.id);
+  if(!e) return 0;
+  const py = e[0], pi = e[1];
+  const cover = s => (s ? nq.length / s.length : 0);
+  if(pi && pi.startsWith(nq)) return 600 + cover(pi) * 30;
+  if(py && py.startsWith(nq)) return 580 + cover(py) * 30;
+  if(py && py.indexOf(nq) >= 0) return 440 + cover(py) * 20;
+  if(pi && pi.indexOf(nq) >= 0) return 430 + cover(pi) * 20;
+  return 0;
+}
+/* 打分阶梯：越靠前的规则越精确；拼音类要求 ≥2 字符，避免单个字母把结果冲乱 */
+function scoreOf(v, lq, nq, hay){
+  if(v.id === lq) return 1000;
+  if(norm(v.id) === nq || norm(v.cn) === nq || norm(v.en) === nq) return 900;
+  if(nq && norm(v.cn).startsWith(nq)) return 700;
+  if(nq && norm(v.model_cn || '').startsWith(nq)) return 660;
+  const p = pyScore(v, nq);
+  if(p) return p;
+  if(nq.length >= 2 && norm(hay).indexOf(nq) >= 0) return 560;
+  if(nq && norm(v.brand_cn || '').startsWith(nq)) return 500;
+  if(lq && hay.indexOf(lq) >= 0) return 300;
+  if(lq.length >= 2 && (v.id.indexOf(lq) >= 0 || String(v.en || '').toLowerCase().indexOf(lq) >= 0)) return 200;
+  return 0;
+}
+/* 一个词是否命中这辆车：中文/英文走全文串，拼音与首字母走拼音索引 */
+function tokenHit(v, toks, all){
+  const hay = searchText.get(v.id) || '', hays = norm(hay);
+  const py = pyIndex.get(v.id) || ['', ''];
+  const one = t => hay.indexOf(t[0]) >= 0 || (t[1] && hays.indexOf(t[1]) >= 0)
+    || (t[1].length >= 2 && (py[0].indexOf(t[1]) >= 0 || py[1].indexOf(t[1]) >= 0));
+  return all ? toks.every(one) : toks.some(one);
+}
+function findVehicles(q, opt){
+  const o = opt || {};
+  const base = o.base || null;
+  const limit = o.limit || 40;
+  const raw = String(q == null ? '' : q).trim();
+  if(!raw) return { list: [], fuzzy: false };
+  const lq = raw.toLowerCase(), nq = norm(raw);
+  const toks = lq.split(/\s+/).filter(Boolean).map(t => [t, norm(t)]);
+  const collect = all => {
+    const out = [];
+    for(const v of VS){
+      if(base && !base(v)) continue;
+      if(!tokenHit(v, toks, all)) continue;
+      out.push([scoreOf(v, lq, nq, searchText.get(v.id) || '') || (all ? 250 : 180), v]);
+    }
+    return out;
+  };
+  /* 多词查询先要求全部命中；一个都没有时放宽成「命中任意一个」，
+     免得用户把厂商和车型配错（如 佩嘉西 灵蛇）就直接看到空白 */
+  let scored = collect(true), loose = false;
+  if(!scored.length && toks.length > 1){ scored = collect(false); loose = true; }
+  if(scored.length || nq.length < 3){
+    scored.sort((a, b) => b[0] - a[0] || a[1].cn.localeCompare(b[1].cn, 'zh-Hans-CN'));
+    return { list: scored.map(x => x[1]).slice(0, limit), fuzzy: loose };
+  }
+  const fz = [];
+  for(const v of VS){
+    if(base && !base(v)) continue;
+    const py = pyIndex.get(v.id) || ['', ''];
+    const s = fuzzyScore(fuzzyText.get(v.id) || '', nq) || fuzzyScore(py[0] + py[1], nq);
+    if(s > 0) fz.push([s, v]);
+  }
+  fz.sort((a, b) => b[0] - a[0] || (a[1].price || 0) - (b[1].price || 0));
+  return { list: fz.map(x => x[1]).slice(0, limit), fuzzy: fz.length > 0 };
+}
+
+const state = {
+  q:'', sort:'class', cls:'', brand:'', dealer:'', mods:new Set(),
+  hideOwned:false, onlyOwned:false, wantOnly:false, buyable:false, dealOnly:false,
+  owned:new Set(), want:new Set(), wantBack:new Set(), meta:new Map(),
+  limit:120, rev:0, dirty:false
+};
+
+function yamlScalar(s){
+  s = String(s == null ? '' : s).trim();
+  /* 判断「引号包裹」必须是**首字符是引号、末字符也是引号**。
+     原来写成 `s[0] === s[1] && s[0] === '"'`（要求前两个字符都是引号），
+     于是带引号的值永远不会被反转义 → 写回时再加一层转义 →
+     每存一次长度翻倍（rev 57 时 acquired 已经 16392 字符，整个 YAML 2.5MB 全是反斜杠）。 */
+  if(s.length >= 2 && s[0] === '"' && s[s.length - 1] === '"') return s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  if(s.length >= 2 && s[0] === "'" && s[s.length - 1] === "'") return s.slice(1, -1).replace(/''/g, "'");
+  if(s === 'true') return true;
+  if(s === 'false') return false;
+  if(s === '[]') return [];
+  if(s === '{}') return {};
+  if(/^-?\d+$/.test(s)) return +s;
+  return s;
+}
+function cutComment(line){
+  let q = '', out = '';
+  for(let i = 0; i < line.length; i++){
+    const c = line[i];
+    if(q){ if(c === q) q = ''; out += c; continue; }
+    if(c === '"' || c === "'"){ q = c; out += c; continue; }
+    if(c === '#' && (i === 0 || /\s/.test(line[i - 1]))) break;
+    out += c;
+  }
+  return out;
+}
+function yamlParse(text){
+  const lines = String(text || '').split(/\r?\n/);
+  const root = {}; let i = 0;
+  while(i < lines.length){
+    const line = cutComment(lines[i]).replace(/\s+$/, '');
+    if(!line.trim()){ i++; continue; }
+    if(/^\s/.test(line)){ i++; continue; }
+    const m = /^([A-Za-z_]\w*)\s*:(.*)$/.exec(line);
+    if(!m){ i++; continue; }
+    const key = m[1], rest = m[2].trim();
+    i++;
+    if(rest){ root[key] = yamlScalar(rest); continue; }
+    const block = [];
+    while(i < lines.length){
+      const raw = cutComment(lines[i]).replace(/\s+$/, '');
+      if(!raw.trim()){ i++; continue; }
+      if(!/^\s/.test(raw)) break;
+      block.push(raw); i++;
+    }
+    root[key] = yamlBlock(block);
+  }
+  return root;
+}
+function yamlBlock(block){
+  const body = block.map(s => s.trim());
+  if(body.length && body[0].slice(0, 2) === '- '){
+    const out = []; let cur = null;
+    body.forEach(s => {
+      if(s.slice(0, 2) === '- '){
+        const item = s.slice(2).trim();
+        const m = /^([A-Za-z_]\w*)\s*:(.*)$/.exec(item);
+        if(m){ cur = {}; cur[m[1]] = yamlScalar(m[2]); out.push(cur); }
+        else { out.push(yamlScalar(item)); cur = null; }
+      } else if(cur){
+        const m = /^([A-Za-z_]\w*)\s*:(.*)$/.exec(s);
+        if(m) cur[m[1]] = yamlScalar(m[2]);
+      }
+    });
+    return out;
+  }
+  const out = {};
+  body.forEach(s => {
+    const m = /^([A-Za-z_]\w*)\s*:(.*)$/.exec(s);
+    if(m) out[m[1]] = yamlScalar(m[2]);
+  });
+  return out;
+}
+const yq = s => '"' + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+function yamlDump(cfg){
+  const st = cfg.settings || {};
+  const want = (cfg.want || []).filter(Boolean);
+  const owned = cfg.owned || [];
+  const L = [
+    '# GTA 线上载具持有配置',
+    '# 「洛圣都车库档案」的持有记录 · 唯一真源',
+    'version: 2',
+    'rev: ' + (cfg.rev || 0),
+    'exported: ' + yq(cfg.exported || ''),
+    'summary:',
+    '  total: ' + (STATS.total || 0),
+    '  priceable: ' + (STATSBUY || 0),
+    '  owned: ' + owned.length,
+    'settings:',
+    '  sort: ' + (st.sort || 'class'),
+    '  hide_owned: ' + (st.hide_owned ? 'true' : 'false'),
+    '  only_buyable: ' + (st.only_buyable ? 'true' : 'false'),
+    'want:' + (want.length ? '' : ' []'),
+    ...want.map(w => '  - ' + w),
+    'owned:' + (owned.length ? '' : ' []')
+  ];
+  owned.forEach(v => {
+    L.push('  - id: ' + v.id);
+    L.push('    cn: ' + yq(v.cn));
+    L.push('    en: ' + yq(v.en));
+    L.push('    class: ' + yq(v.class));
+    L.push('    price: ' + (v.price || 0));
+    if(v.dlc) L.push('    dlc: ' + yq(v.dlc));
+    if(v.acquired) L.push('    acquired: ' + yq(v.acquired));
+    L.push('    note: ' + yq(v.note || ''));
+  });
+  return L.join('\n') + '\n';
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+function entryOf(id){
+  const v = byId.get(id);
+  const old = state.meta.get(id);
+  if(old) return Object.assign({}, old, { id: v.id, cn: v.cn, en: v.en || '', class: classOf(v), price: v.price || 0, dlc: v.dlc || '' });
+  return { id: v.id, cn: v.cn, en: v.en || '', class: classOf(v), price: v.price || 0, dlc: v.dlc || '', acquired: today(), note: '' };
+}
+function configOut(){
+  return {
+    rev: state.rev,
+    exported: new Date().toISOString(),
+    settings: { sort: state.sort, hide_owned: state.hideOwned, only_buyable: state.buyable },
+    want: [...state.want].filter(id => byId.has(id)),
+    owned: [...state.owned].filter(id => byId.has(id)).sort((a, b) =>
+      classOf(byId.get(a)).localeCompare(classOf(byId.get(b)), 'zh-Hans-CN') || a.localeCompare(b)).map(entryOf)
+  };
+}
+function adoptConfig(cfg){
+  state.rev = +cfg.rev || 0;
+  state.owned.clear(); state.want.clear(); state.wantBack.clear(); state.meta.clear();
+  (cfg.owned || []).forEach(e => {
+    const id = typeof e === 'string' ? e : e && e.id;
+    if(id && byId.has(id)){ state.owned.add(id); if(typeof e === 'object') state.meta.set(id, e); }
+  });
+  (cfg.want || []).forEach(id => { if(byId.has(id)) state.want.add(id); });
+  const st = cfg.settings || {};
+  state.sort = sortOK(st.sort || 'class');
+  state.hideOwned = !!st.hide_owned;
+  state.buyable = !!st.only_buyable;
+  state.want.forEach(id => { if(state.owned.has(id)){ state.want.delete(id); state.wantBack.add(id); } });
+  state.dirty = false;
+}
+
+const DB_NAME = 'gta-veh-config';
+const STORE = 'handles';
+function idb(mode, fn){
+  return new Promise((res, rej) => {
+    const rq = indexedDB.open(DB_NAME, 1);
+    rq.onupgradeneeded = () => rq.result.createObjectStore(STORE);
+    rq.onerror = () => rej(rq.error);
+    rq.onsuccess = () => {
+      const db = rq.result;
+      let tx;
+      try{ tx = db.transaction(STORE, mode); }catch(e){ rej(e); return; }
+      const req = fn(tx.objectStore(STORE));
+      tx.oncomplete = () => { db.close(); res(req && req.result); };
+      tx.onerror = () => { db.close(); rej(tx.error); };
+    };
+  });
+}
+const Store = {
+  handle: null,
+  mode: '',
+  canPick: typeof window.showOpenFilePicker === 'function',
+  async loadHandle(){
+    if(!this.canPick) return null;
+    try{ this.handle = await idb('readonly', s => s.get('config')); }catch(e){}
+    return this.handle;
+  },
+  async saveHandle(h){
+    this.handle = h;
+    try{ await idb('readwrite', s => s.put(h, 'config')); }catch(e){}
+  },
+  async pick(){
+    const [h] = await window.showOpenFilePicker({
+      multiple: false,
+      types: [{ description: 'GTA 车辆持有配置', accept: { 'text/yaml': ['.yaml', '.yml'] } }]
+    });
+    await this.saveHandle(h);
+    return h;
+  },
+  async perm(h, req){
+    const o = { mode: 'readwrite' };
+    if(await h.queryPermission(o) === 'granted') return true;
+    if(!req) return false;
+    return (await h.requestPermission(o)) === 'granted';
+  },
+  async pull(){
+    const f = await this.handle.getFile();
+    return f.text();
+  },
+  async push(text){
+    const w = await this.handle.createWritable();
+    await w.write(text);
+    await w.close();
+  }
+};
+
+/* ── 浏览器数据镜像：文件连不上时的自动后备。
+   浏览器安全规则是「网页不能悄悄读磁盘文件」，权限在每次重开浏览器后默认收回；
+   这层镜像保证无论权限在不在，打开页面总能零点击回到上次的状态。
+   rev 随每次写入 +1，重新连接文件时用它比较谁更新。 ── */
+const MIRROR_KEY = 'gta-cfg-mirror-v1';
+function mirrorSync(){
+  try{ localStorage.setItem(MIRROR_KEY, JSON.stringify(configOut())); }catch(e){}
+}
+function mirrorSave(){
+  state.rev = (state.rev || 0) + 1;
+  mirrorSync();
+}
+function mirrorLoad(){
+  try{
+    const t = localStorage.getItem(MIRROR_KEY);
+    if(!t) return null;
+    const c = JSON.parse(t);
+    return c && typeof c === 'object' ? c : null;
+  }catch(e){ return null; }
+}
+
+let saveTimer = 0;
+function setSync(cls, txt){
+  const el = $('#sync');
+  if(!el) return;
+  el.className = cls || '';
+  $('#syncTxt').textContent = txt;
+}
+function scheduleSave(){
+  state.dirty = true;
+  clearTimeout(saveTimer);
+  if(Store.mode === 'file'){
+    setSync('busy', '配置文件-写入中…');
+    saveTimer = setTimeout(flushSave, 500);
+  }else{
+    setSync('busy', '浏览器数据-写入中…');
+    saveTimer = setTimeout(flushMirror, 400);
+  }
+}
+function flushMirror(){
+  mirrorSave();
+  state.dirty = false;
+  setSync('', '浏览器数据-已同步');
+  updateCfgWarn();
+}
+async function flushSave(){
+  if(Store.mode !== 'file' || !Store.handle) return;
+  try{
+    const cfg = configOut();
+    await Store.push(yamlDump(cfg));
+    state.rev = cfg.rev + 1;
+    state.dirty = false;
+    mirrorSync();                      /* 镜像跟文件对齐：权限万一被收回，浏览器里也是最新状态 */
+    setSync('ok', '配置文件-已加载');
+    $('#cfgRev').textContent = '已加载';
+    updateCfgWarn();
+  }catch(e){
+    setSync('err', '配置文件-写入失败');
+    toast('写回配置文件失败：' + (e && e.name || e), 'err');
+  }
+}
+
+/* 文件模式全就绪；浏览器模式数据持久保存在本页、自动恢复，都不需要提示条打扰。
+   这条提示只留给真正要动手的极端场景（比如连 localStorage 都不可用） */
+function updateCfgWarn(){
+  const w = $('#cfgWarn');
+  if(!w) return;
+  if(Store.mode === 'file' || Store.mode === 'mirror'){ w.classList.remove('on'); return; }
+  w.classList.add('on');
+  $('#cfgWarnTxt').innerHTML = Store.canPick
+    ? '还没有连接配置文件 —— 数据会先保存在浏览器里'
+    : '当前浏览器不能绑定本地文件，请用「导出配置」保存';
+  $('#cfgWarnBind').hidden = !Store.canPick;
+}
+function syncControls(){
+  $('#sort').value = sortOK(state.sort);
+  $('#tHide').classList.toggle('on', state.hideOwned);
+  $('#tBuy').classList.toggle('on', state.buyable);
+  $('#cfgRev').textContent = Store.mode === 'file' ? '已加载' : (Store.mode === 'mirror' ? '已同步' : '未加载');
+}
+function withTimeout(p, ms, why){
+  return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(why || 'timeout')), ms))]);
+}
+function boot(){
+  const fills = [['#s-total', STATS.total], ['#s-buy', STATSBUY], ['#k-total', STATS.total],
+                 ['#k-buy', STATSBUY], ['#k-class', DB.classes.length]];
+  fills.forEach(([s, v]) => {
+    const el = $(s);
+    if(!el) return;
+    if(s[2] === 'k') countUp(el, v); else el.textContent = v;
+  });
+  setTimeout(() => { const g = $('#grid'); if(g) g.classList.remove('pre'); }, 950);
+  const snap = DB.snapshot || { at: DB.generated, of: '载具主数据' };
+  $('#gen').textContent = snap.at;
+  if($('#genOf')) $('#genOf').textContent = snap.of;
+  $('#foot-total').textContent = STATS.total + ' 辆 · ' + DB.classes.length + ' 类';
+  $('#srcs').innerHTML = ['GTAOL 中文知识库', '同步 2026-09'].map(s => `<span class="src">${esc(s)}</span>`).join('');
+  syncControls();
+  syncStickyOffset();
+  applyParams();
+  render();
+  loadConfig();
+  /* 折扣数据过期 → 每天最多自动在线刷新一次（用户点「本周折扣」也会手动触发） */
+  if(DEAL_STALE && DEALS && DEALS.updated !== DEAL_TODAY){
+    setTimeout(() => refreshDeals({ silent: true }), 2500);
+  }
+}
+/* 打开页面的装载阶梯（全程零点击）：
+   ① 文件权限仍有效 → 读配置文件（真源）
+   ② 权限被浏览器收回 → 恢复浏览器镜像（上次状态，数据不丢）
+   ③ 什么都没有（第一次）→ 静默初始化默认配置 */
+async function loadConfig(){
+  let h = null;
+  try{ h = await withTimeout(Store.loadHandle(), 2000, 'idb'); }catch(e){}
+  if(h){
+    let granted = false;
+    try{ granted = await withTimeout(Store.perm(h, false), 2000, 'perm'); }catch(e){}
+    if(granted){
+      try{
+        adoptConfig(yamlParse(await withTimeout(Store.pull(), 5000, 'read')));
+        Store.mode = 'file';
+        mirrorSync();                          /* 镜像对齐文件，断连时也有最新数据可用 */
+        setSync('ok', '配置文件-已加载');
+        syncControls(); render(); updateCfgWarn();
+        if(typeof window.__paintWantDrawer === 'function') window.__paintWantDrawer();
+        return;
+      }catch(e){
+        toast('读取配置文件失败：' + (e && e.message || e), 'err');
+      }
+    }
+  }
+  Store.mode = 'mirror';
+  const m = mirrorLoad();
+  if(m){
+    try{ adoptConfig(m); }catch(e){ adoptConfig({}); }
+    setSync('', h ? '浏览器数据-已加载 · 文件待授权' : '浏览器数据-已加载');
+  }else{
+    adoptConfig({});
+    mirrorSave();
+    setSync('', '已初始化 · 数据保存在浏览器');
+  }
+  syncControls(); render(); updateCfgWarn();
+  if(typeof window.__paintWantDrawer === 'function') window.__paintWantDrawer();
+}
+
+function applyParams(){
+  const raw = (location.search || '').replace(/^\?/, '') || (location.hash || '').replace(/^#/, '');
+  if(!raw || raw.indexOf('=') < 0) return false;
+  let P; try{ P = new URLSearchParams(raw); }catch(e){ return false; }
+  const q = P.get('q') || P.get('v');
+  if(q){
+    const el = $('#q'); el.value = q; $('#searchWrap').classList.add('has');
+    el.dispatchEvent(new Event('input'));
+  }
+  const sel = { cls:'#fClass', brand:'#fBrand', dealer:'#fDealer', sort:'#sort' };
+  Object.keys(sel).forEach(k => {
+    const v = P.get(k); if(!v) return;
+    const el = document.querySelector(sel[k]);
+    if(el && [...el.options].some(o => o.value === v)){ el.value = v; el.dispatchEvent(new Event('change')); }
+  });
+  [['own','#tOnly'], ['want','#tWant'], ['buy','#tBuy'], ['hide','#tHide'], ['deal','#tDeal']].forEach(([k, s]) => {
+    if(P.get(k) === '1' || P.get(k) === 'true'){ const el = document.querySelector(s); if(el && !el.classList.contains('on')) el.click(); }
+  });
+  return true;
+}
+
+function baseOK(v){
+  if(state.cls === '__spc__'){ if(!v.spc) return false; }
+  else if(state.cls && classOf(v) !== state.cls) return false;
+  if(state.brand){
+    if(state.brand === '__none__'){ if(v.brand_cn) return false; }
+    else if(v.brand_cn !== state.brand && v.brand_en !== state.brand) return false;
+  }
+  if(state.dealer && v.dealer !== state.dealer
+     && String(v.channels || '').toLowerCase().indexOf(String(state.dealer).toLowerCase()) < 0) return false;
+  /* 多选标签按「同时满足」过滤：每多勾一个就收窄一档，这样才能定位到具体某辆车 */
+  if(state.mods.size){
+    for(const m of state.mods){ if(!(v.mods || []).includes(m)) return false; }
+  }
+  if(state.buyable && !(v.price > 0)) return false;
+  if(state.onlyOwned && !state.owned.has(v.id)) return false;
+  if(state.hideOwned && state.owned.has(v.id)) return false;
+  if(state.wantOnly && !state.want.has(v.id)) return false;
+  if(state.dealOnly && !DEAL_OF.has(v.id)) return false;
+  return true;
+}
+
+let fuzzyUsed = false;
+function filtered(){
+  const raw = state.q.trim();
+  let list, fz;
+  if(!raw){
+    list = VS.filter(baseOK);
+    fz = false;
+  }else{
+    const r = findVehicles(raw, { base: baseOK, limit: 100000 });
+    list = r.list;
+    fz = r.fuzzy;
+  }
+  fuzzyUsed = fz;
+  if(fz) return list.slice(0, 60);
+  const out = list.slice(), k = state.sort;
+  out.sort((a, b) => {
+    const eff = v => { const d = dealOf(v); return d && d.now ? d.now : (v.price || 0); };
+    if(k === 'price-desc') return eff(b) - eff(a);
+    if(k === 'price-asc') return ((eff(a) > 0 ? eff(a) : 1e12) - (eff(b) > 0 ? eff(b) : 1e12));
+    const ci = DB.classes.indexOf(classOf(a)) - DB.classes.indexOf(classOf(b));
+    return ci || (b.price || 0) - (a.price || 0) || a.cn.localeCompare(b.cn, 'zh-Hans-CN');
+  });
+  return out;
+}
+
+function dealOf(v){
+  const d = DEAL_OF.get(v.id);
+  if(!d) return '';
+  const pct = +d.pct || 0;
+  const was = v.price || 0;
+  const now = d.price || (was > 0 && pct > 0 ? Math.round(was * (100 - pct) / 100) : 0);
+  return { d, pct, was, now };
+}
+function cardHTML(v){
+  const own = state.owned.has(v.id), want = state.want.has(v.id);
+  const cc = clsColor(classOf(v));
+  const isNew = /^\d{4}-\d{2}-\d{2}/.test(v.released || '') && v.released >= '2026-01-01';
+  const dl = dealOf(v);
+  const badges = [`<span class="bd bd-cls">${esc(classOf(v))}</span>`];
+  if(dl && dl.pct) badges.push(`<span class="bd bd-deal" title="本周折扣">-${dl.pct}%</span>`);
+  if(dl && (dl.d.tags || []).indexOf('back') > -1) badges.push('<span class="bd bd-back" title="下架车辆限时回归车店">回归</span>');
+  if(isNew) badges.push('<span class="bd bd-new">2026 NEW</span>');
+  TUNE_KEYS.forEach(k => { if((v.mods || []).includes(k)) badges.push(`<span class="bd ${MOD_META[k].c}">${MOD_META[k].t}</span>`); });
+  const rows = [];
+  if(v.dealer) rows.push(['购买', esc(v.dealer)]);
+  if(v.dlc) rows.push(['版本', esc(String(v.dlc).replace(/^\d+\.\d+\s*/, '').replace(/^「|」$/g, '').trim())]);
+  if(v.released && /^\d{4}/.test(v.released)) rows.push(['上线', esc(v.released)]);
+  if(v.proto) rows.push(['原型', esc(v.proto)]);
+  if(dl){
+    const bits = [];
+    if(dl.pct) bits.push('-' + dl.pct + '%');
+    if(dl.now) bits.push('折后 ' + fmt(dl.now));
+    if((dl.d.tags || []).indexOf('back') > -1) bits.push('下架回归');
+    if(dl.d.store) bits.push(dl.d.store);
+    if(dl.d.week) bits.push(dl.d.week);
+    rows.push(['折扣', '<span class="v-deal-txt">' + esc(bits.join(' · ')) + '</span>']);
+  }
+  return `<article class="v${own ? ' owned' : ''}" data-id="${esc(v.id)}" style="--cc:${cc}">
+    <button type="button" class="v-mark${own ? ' on' : ''}" data-own="${esc(v.id)}" aria-pressed="${own}"
+      title="${own ? '取消「已拥有」标记' : '标记为「已拥有」'}">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M10.6 16.7l3.7 3.7 7.5-8.6"/></svg>
+    </button>
+    <div class="v-h">
+      <div class="v-nm">
+        <div class="v-brand">${esc(v.brand_cn || v.brand_en || '—')}</div>
+        <h3 class="v-model">${esc(v.model_cn || v.cn)}</h3>
+        <div class="v-en">${esc(v.en || '')}</div>
+      </div>
+    </div>
+    <div class="v-badges">${badges.join('')}</div>
+    <div class="v-data">${rows.map(([k, x]) => `<div class="v-r"><span class="v-k">${k}</span><span class="v-v">${x}</span></div>`).join('')}</div>
+    <div class="v-f">
+      <span class="v-price${v.price > 0 || (dl && dl.now) ? '' : ' free'}">${dl && dl.now ? fmt(dl.now) : (v.price > 0 ? fmt(v.price) : (v.price === 0 ? '奖励 / 免费' : '不可直接购买'))}${
+        dl && dl.now && dl.was && dl.was !== dl.now ? `<s class="v-was" title="原价">${fmt(dl.was)}</s>` : ''}</span>
+      <span class="v-acts">
+        <button type="button" class="pill v-want${own ? ' locked' : (want ? ' on' : '')}" data-want="${esc(v.id)}"${own ? ' disabled' : ''}
+          title="${own ? '已拥有 —— 计划购买清单只记还没买的车' : (want ? '已在计划购买清单，点一下移出' : '加入计划购买清单')}">${own ? '✓ 已拥有' : (want ? '✓ 已加入计划' : '＋ 计划购买')}</button>
+      </span>
+    </div>
+  </article>`;
+}
+/* 同一帧内的多次渲染合并成一次；flushRender 供测试脚本同步触发，避免断言跑在下一帧之前。
+   toTop 会累积——只要这一帧里有任何一次要求回位，合并后的那一次就回位 */
+let renderQueued = 0, renderToTop = false;
+function renderSoon(toTop){
+  if(toTop) renderToTop = true;
+  if(renderQueued) return;
+  renderQueued = requestAnimationFrame(flushRender);
+}
+function flushRender(){
+  if(!renderQueued) return;
+  cancelAnimationFrame(renderQueued);
+  renderQueued = 0;
+  const tt = renderToTop;
+  renderToTop = false;
+  render(!tt, tt ? { toTop: true, snap: true } : undefined);
+}
+function render(keepLimit, opt){
+  const backTop = !!(opt && opt.toTop);
+  if(!keepLimit) state.limit = 120;
+  const list = filtered();
+  const show = list.slice(0, state.limit);
+  const grid = $('#grid');
+  const topBefore = grid.getBoundingClientRect().top;
+  const yBefore = window.scrollY || document.documentElement.scrollTop || 0;
+  grid.innerHTML = show.length ? show.map(cardHTML).join('')
+    : `<div class="empty"><b>没有符合条件的载具</b>换个关键词（拼不全也行，会自动模糊匹配），或点「重置」清空筛选</div>`;
+  const shifted = grid.getBoundingClientRect().top - topBefore;
+  if(backTop) scrollToEl(grid, !(opt && opt.snap));
+  else if(shifted) window.scrollTo(0, Math.max(0, yBefore + shifted));
+  $('#count').innerHTML = `<b>${list.length}</b> / ${VS.length}` + (fuzzyUsed ? ' · 模糊' : '');
+  feedTotal = list.length;
+  updateFeed(show.length, list.length);
+  updateOwnUI();
+}
+/* 分页：不再用按钮。列表末尾有个哨兵，滚到附近就自动补一批 ——
+   补的内容在视口下方，不会顶动你正在看的东西（按钮时代那个 11560px 的跳就是这么来的） */
+let feedTotal = 0;
+function updateFeed(shown, total){
+  const feed = $('#feed');
+  feed.classList.toggle('on', !!total);
+  $('#feedN').textContent = total ? `已显示 ${shown} / ${total} 辆` : '';
+  $('#feedEnd').classList.toggle('on', total > 0 && shown >= total);
+}
+function loadMore(){
+  if(state.limit >= feedTotal) return;
+  if(Date.now() < feedLock) return;                 /* 回位飞行中，别打断 */
+  const y = window.scrollY || 0;
+  if(y < lastFeedY - 2){ lastFeedY = y; return; }   /* 向上滚不补卡 */
+  lastFeedY = y;
+  state.limit += 160;
+  render(true);
+}
+
+/* 筛选 / 排序 / 搜索变了 → 列表必然变，回到第一行；只改标记 → 不动视口 */
+function renderAndReset(){ render(false, { toTop: true }); }
+function paintCard(id){
+  const el = document.querySelector(`.v[data-id="${id}"]`);
+  if(!el) return;
+  const own = state.owned.has(id), want = state.want.has(id);
+  el.classList.toggle('owned', own);
+  const mk = el.querySelector('.v-mark');
+  if(mk){
+    mk.classList.toggle('on', own);
+    mk.setAttribute('aria-pressed', own ? 'true' : 'false');
+    mk.title = own ? '取消「已拥有」标记' : '标记为「已拥有」';
+  }
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 620);
+  const w = el.querySelector('.v-want');
+  if(w){
+    w.className = 'pill v-want' + (own ? ' locked' : (want ? ' on' : ''));
+    w.textContent = own ? '✓ 已拥有' : (want ? '✓ 已加入计划' : '＋ 计划购买');
+    if(w.tagName === 'BUTTON') w.disabled = own;
+    w.title = own ? '已拥有 —— 计划购买清单只记还没买的车；取消「已拥有」会自动还回去'
+                  : (want ? '已在计划购买清单，点一下移出' : '加入计划购买清单');
+  }
+}
+function updateOwnUI(){
+  const n = [...state.owned].filter(id => byId.has(id)).length;
+  $('#k-owned').textContent = n;
+  $('#k-owned-pct').textContent = (n && VS.length) ? (n / VS.length * 100).toFixed(1) + '%' : '';
+  $('#ownN').textContent = n;
+  $('#ownChip').classList.toggle('zero', n === 0);
+  const w = [...state.want].filter(id => byId.has(id)).length;
+  $('#wantN').textContent = w;
+  $('#wantChip').classList.toggle('zero', w === 0);
+  $('#railWantN').textContent = w;
+  $('#btnWant').classList.toggle('has', w > 0);
+  $('#k-want').textContent = w;
+}
+
+function listDependsOnMarks(){ return state.hideOwned || state.onlyOwned || state.wantOnly; }
+function afterMarkChange(id){
+  if(listDependsOnMarks()) render(true);
+  else updateOwnUI();
+  paintCard(id);
+}
+function toggleOwn(id, on, silent, note){
+  const v = byId.get(id); if(!v) return;
+  if(on){ state.owned.add(id); if(!state.meta.has(id)) state.meta.set(id, entryOf(id)); }
+  else state.owned.delete(id);
+  let moved = '';
+  if(on){
+    if(state.want.has(id)){ state.want.delete(id); state.wantBack.add(id); moved = '已从计划购买移出'; }
+    else state.wantBack.delete(id);
+  } else if(state.wantBack.has(id)){
+    state.want.add(id); state.wantBack.delete(id); moved = '已还回计划购买清单';
+  }
+  scheduleSave();
+  afterMarkChange(id);
+  if(silent) return;
+  if(moved) toast(`「${v.cn}」${moved}`);
+}
+function toggleWant(id, quiet){
+  const had = state.want.has(id);
+  if(!had && state.owned.has(id)){
+    const v = byId.get(id);
+    toast(`「${v ? v.cn : id}」已拥有 —— 计划购买清单只记还没买的车`, 'err');
+    return false;
+  }
+  had ? state.want.delete(id) : state.want.add(id);
+  state.wantBack.delete(id);
+  scheduleSave();
+  afterMarkChange(id);
+  if(typeof window.__paintWantDrawer === 'function') window.__paintWantDrawer();
+  if(!quiet) toast(had ? '已移出计划购买清单' : '已加入计划购买清单', had ? '' : 'ok');
+  return true;
+}
+
+function toast(msg, cls){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast on' + (cls === 'ok' ? ' tc-ok' : cls === 'err' ? ' tc-err' : '');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.className = 'toast' + (cls === 'ok' ? ' tc-ok' : cls === 'err' ? ' tc-err' : ''), 2500);
+}
+
+$('#q').addEventListener('input', e => {
+  state.q = e.target.value;
+  $('#searchWrap').classList.toggle('has', !!state.q);
+  renderSoon(true);
+});
+$('#qClear').addEventListener('click', () => {
+  $('#q').value = ''; state.q = ''; $('#searchWrap').classList.remove('has'); renderAndReset(); $('#q').focus();
+});
+$('#sort').addEventListener('change', e => { state.sort = e.target.value; scheduleSave(); renderAndReset(); });
+
+const fC = $('#fClass'), fB = $('#fBrand'), fD = $('#fDealer');
+const clsEn = {}, clsN = {};
+VS.forEach(v => { const c = classOf(v); clsN[c] = (clsN[c] || 0) + 1; if(v.class_en && !clsEn[c]) clsEn[c] = v.class_en; });
+const spcN = VS.filter(v => v.spc).length;
+fC.innerHTML = '<option value="">全部</option>'
+  + DB.classes.filter(c => clsN[c])
+      .map(c => `<option value="${esc(c)}">${esc(c)}${clsEn[c] ? ' ' + esc(clsEn[c]) : ''} · ${clsN[c]}</option>`).join('')
+  + (spcN ? `<option value="__spc__">CEO特殊载具 · ${spcN}</option>` : '');
+const noBrandN = VS.filter(v => !v.brand_cn).length;
+fB.innerHTML = '<option value="">全部</option>'
+  + DB.brands.map(b => `<option value="${esc(b.cn)}">${esc(b.cn)}${b.en ? ' ' + esc(b.en) : ''} · ${b.n}</option>`).join('')
+  + (noBrandN ? `<option value="__none__">未标注厂商 · ${noBrandN}</option>` : '');
+const dealerN = {}, dealerEn = {};
+VS.forEach(v => {
+  if(!v.dealer) return;
+  dealerN[v.dealer] = (dealerN[v.dealer] || 0) + 1;
+  if(v.channels){
+    const set = dealerEn[v.dealer] = dealerEn[v.dealer] || [];
+    String(v.channels).split(/[;/]/).map(s => s.trim()).filter(Boolean).forEach(s => { if(set.indexOf(s) < 0) set.push(s); });
+  }
+});
+const BUY_CH = DB.buyChannels || [];
+fD.innerHTML = '<option value="">全部</option>'
+  + BUY_CH.map(c => `<option value="${esc(c.v)}">${esc(c.v)} · ${c.n}</option>`).join('');
+fC.addEventListener('change', e => { state.cls = e.target.value; renderAndReset(); });
+fB.addEventListener('change', e => { state.brand = e.target.value; renderAndReset(); });
+fD.addEventListener('change', e => { state.dealer = e.target.value; renderAndReset(); });
+
+const modCount = {};
+VS.forEach(v => TUNE_KEYS.forEach(k => { if((v.mods || []).includes(k)) modCount[k] = (modCount[k] || 0) + 1; }));
+$('#fMods').innerHTML = TUNE_KEYS.filter(k => modCount[k])
+  .map(k => `<span class="tag" data-mod="${k}" title="${esc(MOD_TIP[k] || '')}（${modCount[k]} 辆）">${MOD_META[k].t}<i>${modCount[k]}</i></span>`).join('');
+/* 本周折扣标签由 paintDealTag 托管：数据刷新后原地换装（常态 / 过期态 / 获取中态） */
+function paintDealTag(){
+  const row = $('#fMods');
+  if(!row) return;
+  let t = $('#tDeal');
+  const n = DEALS ? (DEALS.items || []).filter(d => byId.has(d.id)).length : 0;
+  if(!n){ if(t) t.remove(); return; }
+  if(!t){
+    t = document.createElement('span');
+    t.id = 'tDeal';
+    t.setAttribute('data-quick', 'deal');
+    row.appendChild(t);
+  }
+  t.className = 'tag' + (DEAL_STALE ? ' stale' : '');
+  t.title = DEAL_STALE
+    ? '折扣数据已过期（有效期至 ' + esc(DEALS.to || '?') + '）—— 点一下在线获取本周最新；源站没更新会提示等待'
+    : '只看本周在打折的载具（每周四更新，有效期到 ' + esc(DEALS.to || '') + '）';
+  t.innerHTML = '本周折扣<i>' + n + '</i>';
+}
+paintDealTag();
+
+/* ── 在线自更新：过期后经 CORS 开放的阅读代理拉聚合站周更页，
+      slug / 内容签名双守卫 —— 源站没更新就提示等待，绝不重复抓同一篇 ── */
+const DEAL_SRC = {
+  list: 'https://www.gtaboom.com/gta-online-weekly-updates',
+  via: u => 'https://r.jina.ai/' + u
+};
+const DEAL_LOG_KEY = 'gta-deals-fetchlog-v1';
+let dealRefreshing = false;
+function dealLog(){ try{ return JSON.parse(localStorage.getItem(DEAL_LOG_KEY) || '{}'); }catch(e){ return {}; } }
+function dealLogSet(o){ try{ localStorage.setItem(DEAL_LOG_KEY, JSON.stringify(o)); }catch(e){} }
+function dealSig(items){ return (items || []).map(i => i.id + ':' + i.pct).sort().join('|'); }
+function gtaWeek(){
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let diff = (d.getDay() - 4 + 7) % 7;                 /* 周四为每周起点（4 = Thursday） */
+  if(diff === 0 && now.getHours() < 18) diff = 7;      /* 周四 18 点（UTC 重置）之前仍算上周 */
+  const from = new Date(d.getFullYear(), d.getMonth(), d.getDate() - diff);
+  const to = new Date(from.getFullYear(), from.getMonth(), from.getDate() + 6);
+  return { from: from.getFullYear() + '-' + pad2(from.getMonth() + 1) + '-' + pad2(from.getDate()),
+           to: to.getFullYear() + '-' + pad2(to.getMonth() + 1) + '-' + pad2(to.getDate()) };
+}
+function matchVeh(name){
+  const n = norm(name);
+  if(!n) return null;
+  if(aliasIdx.has(n)) return aliasIdx.get(n);
+  if(brandIdx.has(n)) return brandIdx.get(n);
+  let hit = null, cnt = 0;
+  for(const [k, id] of aliasIdx){
+    if(k.length >= 4 && (k.indexOf(n) >= 0 || n.indexOf(k) >= 0)){ hit = id; cnt++; if(cnt > 2) return null; }
+  }
+  return cnt === 1 ? hit : null;
+}
+function parseDealText(html){
+  const found = {};
+  let m;
+  const row = /\|\s*([^|]{3,80}?)\s*\|\s*(\d{1,3})\s*%\s*off/gi;
+  while((m = row.exec(html))){
+    const id = matchVeh(m[1]);
+    const pct = +m[2];
+    if(id && pct > 0 && pct < 100 && (!found[id] || found[id].pct < pct)) found[id] = { id: id, pct: pct };
+  }
+  if(Object.keys(found).length) return Object.keys(found).map(k => found[k]);
+  const loose = /([A-Za-z][A-Za-z0-9'&.\-]*(?:\s+[A-Za-z0-9'&.\-]+){0,4})\s+[-\u2013\u2014]\s+(\d{1,3})\s*%\s*off/g;
+  while((m = loose.exec(html))){
+    const id = matchVeh(m[1]);
+    const pct = +m[2];
+    if(id && pct > 0 && pct < 100 && (!found[id] || found[id].pct < pct)) found[id] = { id: id, pct: pct };
+  }
+  return Object.keys(found).map(k => found[k]);
+}
+async function viaProxy(url){
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 20000);
+  try{
+    const r = await fetch(DEAL_SRC.via(url), { signal: ac.signal });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.text();
+  }finally{ clearTimeout(timer); }
+}
+async function refreshDeals(opt){
+  opt = opt || {};
+  if(dealRefreshing) return;
+  if(navigator.onLine === false){
+    if(!opt.silent) toast('当前离线 —— 恢复联网后再进「本周折扣」即可自动获取', 'err');
+    return;
+  }
+  dealRefreshing = true;
+  const t = $('#tDeal');
+  if(t){ t.className = 'tag dealing'; t.innerHTML = '正在获取本周折扣<i>…</i>'; }
+  try{
+    const log = dealLog();
+    const listHtml = await viaProxy(DEAL_SRC.list);
+    const re = /gta-online-[a-z0-9]+(?:-[a-z0-9]+)*-(?:january|february|march|april|may|june|july|august|september|october|november|december)-20\d{2}/gi;
+    let m, slug = null;
+    while((m = re.exec(listHtml))){ slug = m[0]; break; }
+    if(!slug) throw new Error('列表页里没找到周更文章');
+    if(log.slug === slug){
+      /* 元数据没变 = 聚合站还没发布本周内容：提示等待，正文都不用抓 */
+      dealLogSet({ slug: slug, at: DEAL_TODAY });
+      throw new Error('WAIT');
+    }
+    const artHtml = await viaProxy('https://www.gtaboom.com/' + slug);
+    const items = parseDealText(artHtml);
+    if(items.length < 3) throw new Error('解析到的折扣条目异常（' + items.length + ' 条）');
+    if(DEALS && (DEALS.items || []).length && dealSig(items) === dealSig(DEALS.items)){
+      /* 内容跟手头这份一模一样 → 同样算「没更新」，记下 slug，下次直接跳过正文 */
+      dealLogSet({ slug: slug, at: DEAL_TODAY });
+      throw new Error('WAIT');
+    }
+    const wk = gtaWeek();
+    const d = { from: wk.from, to: wk.to, updated: DEAL_TODAY, sources: ['gtaboom · 在线获取'], items: items };
+    localStorage.setItem('gta-deals-cache-v1', JSON.stringify(d));
+    dealLogSet({ slug: slug, at: DEAL_TODAY });
+    setDeals(d);
+    paintDealTag();
+    if(opt.silent){ toast('本周折扣已自动更新 · ' + items.length + ' 条', 'ok'); return; }
+    state.dealOnly = true;
+    const t2 = $('#tDeal'); if(t2) t2.classList.add('on');
+    renderAndReset();
+    toast('已获取本周折扣 · ' + items.length + ' 条', 'ok');
+  }catch(e){
+    const wait = e && e.message === 'WAIT';
+    if(!opt.silent) toast(wait ? '聚合站还没发布本周内容，需要等待 —— 之后重新进入会自动再试'
+                               : '在线获取失败（' + (e && e.message || e) + '），暂用现有数据', wait ? '' : 'err');
+  }finally{
+    dealRefreshing = false;
+    paintDealTag();
+  }
+}
+
+document.addEventListener('click', e => {
+  const t1 = e.target.closest('[data-mod]');
+  if(t1){
+    const m = t1.dataset.mod;
+    if(state.mods.has(m)){ state.mods.delete(m); t1.classList.remove('on'); } else { state.mods.add(m); t1.classList.add('on'); }
+    renderAndReset(); return;
+  }
+  const t2 = e.target.closest('[data-quick="deal"]');
+  if(t2){
+    if(DEAL_STALE){ refreshDeals(); return; }   /* 过期：点了先在线获取，成功后自动进入筛选 */
+    state.dealOnly = !state.dealOnly;
+    t2.classList.toggle('on', state.dealOnly);
+    renderAndReset(); return;                   /* dealOnly 不进配置文件，不触发写盘 */
+  }
+  const ob = e.target.closest('[data-own]');
+  if(ob){ toggleOwn(ob.dataset.own, !state.owned.has(ob.dataset.own)); return; }
+  const pk = e.target.closest('[data-pk]');
+  if(pk){
+    const id = pk.dataset.pk;
+    if(state.owned.has(id)) return;
+    pk.classList.add('on');
+    const a = pk.querySelector('.ui-a'); if(a) a.textContent = '✓ 已拥有';
+    toggleOwn(id, true);
+    return;
+  }
+  const un = e.target.closest('[data-unown]');
+  if(un){
+    toggleOwn(un.dataset.unown, false, true);
+    if(typeof window.__paintOwnDrawer === 'function') window.__paintOwnDrawer();
+    return;
+  }
+  const w = e.target.closest('[data-want]');
+  if(w){ toggleWant(w.dataset.want); return; }
+});
+
+[['#tHide','hideOwned'], ['#tOnly','onlyOwned'], ['#tWant','wantOnly'], ['#tBuy','buyable']].forEach(([sel, key]) => {
+  $(sel).addEventListener('click', function(){
+    state[key] = !state[key];
+    this.classList.toggle('on', state[key]);
+    /* 只有 hide_owned / only_buyable 会写进配置文件的 settings，其余开关动了也不写盘 */
+    if(key === 'hideOwned' || key === 'buyable') scheduleSave();
+    renderAndReset();
+  });
+});
+$('#feedMore').addEventListener('click', loadMore);
+if('IntersectionObserver' in window){
+  new IntersectionObserver(es => { if(es.some(e => e.isIntersecting)) loadMore(); },
+                           { rootMargin: '720px 0px' }).observe($('#feedSentinel'));
+}
+$('#btnReset').addEventListener('click', () => {
+  state.q = ''; state.cls = ''; state.brand = ''; state.dealer = ''; state.mods.clear();
+  state.hideOwned = state.onlyOwned = state.wantOnly = state.buyable = state.dealOnly = false;
+  state.sort = 'class';
+  $('#q').value = ''; $('#searchWrap').classList.remove('has'); $('#sort').value = 'class';
+  fC.value = ''; fB.value = ''; fD.value = ''; syncSelLabels();
+  document.querySelectorAll('.tag.on').forEach(c => c.classList.remove('on'));
+  document.querySelectorAll('.c-sw.on').forEach(c => c.classList.remove('on'));
+  scheduleSave(); renderAndReset(); toast('筛选已重置');
+});
+
+function openDrawer(mode, arg){
+  $('#dSub').textContent = ''; $('#dBar').innerHTML = ''; $('#dBody').innerHTML = ''; $('#dFoot').innerHTML = '';
+  window.__paintWantDrawer = null;
+  closeSel(null);
+  pruneSel();
+  if(mode === 'add') drawerAdd();
+  else if(mode === 'want') paneWant();
+  else if(mode === 'owned') drawerOwned();
+  else if(mode === 'paste') panePaste();
+  else if(mode === 'import') drawerImport();
+  $('#drawer').classList.add('on');
+  $('#bd').classList.add('on');
+  $('#drawer').setAttribute('aria-hidden', 'false');
+  const f = $('#dBody').querySelector('input,textarea');
+  if(f) setTimeout(() => f.focus(), 100);
+}
+function closeDrawer(){
+  $('#drawer').classList.remove('on');
+  $('#bd').classList.remove('on');
+  $('#drawer').setAttribute('aria-hidden', 'true');
+  /* 面板内容清掉 → 输入框脱离文档 → pruneSel 才会把挂在 body 上的候选浮层一起收走。
+     浮层挂 body 是为了不被抽屉的 overflow 裁掉，所以关的时候必须成对清理 */
+  closeSel(null);
+  $('#dBody').innerHTML = '';
+  pruneSel();
+}
+$('#bd').addEventListener('click', closeDrawer);
+$('#dClose').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDrawer(); });
+
+function msg(html){ const d = document.createElement('div'); d.className = 'ui-hint'; d.innerHTML = html; $('#dBody').appendChild(d); }
+function paneHead(t, sub){ $('#dTitle').textContent = t; if(sub != null) $('#dSub').textContent = sub; }
+function paneFoot(html){ $('#dFoot').innerHTML = html || ''; }
+function uiField(id, ph){
+  return `<div class="ui-field">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6L14 14"/></svg>
+    <input id="${id}" type="search" placeholder="${esc(ph)}" autocomplete="off" spellcheck="false">
+    <button class="xs" id="${id}Clr" aria-label="清除">✕</button></div>`;
+}
+function uiItem(o){
+  return `<div class="ui-item${o.on ? ' on' : ''}"${o.data ? ' ' + o.data : ''}${o.title ? ` title="${esc(o.title)}"` : ''}>`
+    + `<span class="ui-m"><span class="ui-t1">${esc(o.t1)}</span>`
+      + (o.t2 ? `<span class="ui-t2">${esc(o.t2)}</span>` : '') + `</span>`
+    + (o.p ? `<span class="ui-p">${esc(o.p)}</span>` : '')
+    + (o.got ? `<button class="ui-got" data-own="${esc(o.got)}" title="标记为已拥有（会自动离开这张单子）">已拥有</button>` : '')
+    + (o.a ? `<span class="ui-a">${esc(o.a)}</span>` : '')
+    + (o.x ? `<button class="ui-x" ${o.x} aria-label="移除"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M3.5 8h9"/></svg></button>` : '')
+    + '</div>';
+}
+const uiEmpty = html => `<div class="ui-empty">${html}</div>`;
+const vLabel = v => (v.brand_cn ? v.brand_cn + ' ' : '') + (v.model_cn || v.cn);
+function paintWant(){
+  const list = [...state.want].filter(id => byId.has(id)).map(id => byId.get(id))
+    .sort((a, b) => (b.price || 0) - (a.price || 0) || a.cn.localeCompare(b.cn, 'zh-Hans-CN'));
+  const total = list.reduce((t, v) => t + (v.price || 0), 0);
+  const sum = $('#wantSum');
+  if(sum) sum.innerHTML = list.length
+    ? `共 <b>${list.length}</b> 辆，标价合计 <b>${fmt(total)}</b>${total ? '（折扣车按原价计）' : ''}`
+    : '还是空的。';
+  const host = $('#wantList');
+  if(!host) return;
+  host.innerHTML = list.length ? list.map(v => {
+    const dl = dealOf(v);
+    return uiItem({
+      t1: vLabel(v),
+      t2: [v.en, v.dealer || v.channels, classOf(v), dl && dl.pct ? `本周 -${dl.pct}%` : '', dl && dl.now ? '折后 ' + fmt(dl.now) : ''].filter(Boolean).join(' · '),
+      p: v.price > 0 ? fmt(v.price) : '—',
+      got: v.id,
+      x: `data-want="${esc(v.id)}" title="从计划购买清单移出「${esc(v.cn)}」"`
+    });
+  }).join('') : uiEmpty('在载具卡片上点「＋ 加入计划购买」加入');
+}
+function paneWant(){
+  paneHead('计划购买清单', '只是计划购买，不计入已拥有；标记「已拥有」后会自动离开');
+  paneFoot('<button class="btn" id="wantOnlyBtn" title="在列表里只看计划购买的车">只看计划购买</button>'
+         + '<button class="btn btn-dgr" id="wantClear" title="清空计划购买清单（不影响已拥有标记）">清空</button>');
+  $('#dBody').innerHTML = '<p class="ui-hint" id="wantSum"></p><div class="ui-list" id="wantList"></div>';
+  paintWant();
+  window.__paintWantDrawer = paintWant;
+  $('#wantOnlyBtn').addEventListener('click', () => {
+    closeDrawer();
+    if(!state.wantOnly){ $('#tWant').click(); }
+    scrollToEl($('.console'), true);
+  });
+  $('#wantClear').addEventListener('click', () => {
+    const n = [...state.want].filter(id => byId.has(id)).length;
+    if(!n){ toast('计划购买清单已经是空的'); return; }
+    if(!confirm(`确定清空这 ${n} 辆计划购买？已拥有标记不受影响。`)) return;
+    state.want.clear(); state.wantBack.clear();
+    scheduleSave(); render(true); paintWant();
+    toast('计划购买清单已清空');
+  });
+}
+function drawerAdd(){ panePaste(); }
+/* 批量添加 · 三件套
+   ① HUD 单行输入  ② 候选下选框（复用 .sel-panel 组件：键盘可选、自动翻转定位）
+   ③ 暂存清单（加错了当场删）  ④ 一次写回。
+   候选与识别都走 findVehicles/resolveOne 这一个检索入口，所以拼音、首字母全通。 */
+function panePaste(){
+  paneHead('批量添加已拥有', '一次一辆：打字后 ↑↓ 选、回车加入，也可以直接点候选。凑齐了点右下角一次写入。');
+  paneFoot('<button class="btn" id="dCancel" title="关闭面板，不做任何改动">关闭</button>'
+         + '<button class="btn btn-acid" id="dOk" disabled>批量添加</button>');
+  $('#dBody').innerHTML =
+      '<div class="ba">'
+    + '<section class="ba-sec"><div class="ba-h">输入<b id="baTip">拼音 · 首字母 · 任意字</b></div>'
+    +   '<div class="ba-hud" id="baHud"><span class="ba-pre" aria-hidden="true">&gt;</span>'
+    +     '<input id="baIn" type="text" autocomplete="off" spellcheck="false" role="combobox"'
+    +     ' aria-autocomplete="list" aria-expanded="false" aria-controls="baPanel" aria-activedescendant=""'
+    +     ' placeholder="卡林 S95　kls95　kalin　pjx" aria-label="输入车名"></div></section>'
+    + '<section class="ba-sec grow"><div class="ba-h">待添加<b id="baN"></b></div>'
+    +   '<div class="ba-list" id="baList"></div></section></div>';
+
+  const inp = $('#baIn'), listEl = $('#baList'), nEl = $('#baN');
+  const hud = $('#baHud'), okBtn = $('#dOk'), panel = document.createElement('div');
+  panel.className = 'sel-panel';
+  panel.id = 'baPanel';
+  panel.setAttribute('role', 'listbox');
+  document.body.appendChild(panel);
+
+  let cands = [], sel = -1, open = false, staged = [];
+  const stagedIds = () => new Set(staged.map(x => x.id));
+
+  /* ── 候选下选框：外观与定位都走 .sel-panel 那一套 ── */
+  function place(){
+    /* 严格等宽：以 HUD 框（含 > 前缀与内边距的整个输入区）为基准，宽度锁死、左缘对齐 */
+    const r = hud.getBoundingClientRect();
+    panel.style.width = Math.round(r.width) + 'px';
+    panel.style.left = Math.round(r.left) + 'px';
+    const h = panel.offsetHeight || 0;
+    const below = window.innerHeight - r.bottom - 12;
+    panel.style.top = (h && h > below && r.top > h + 12
+      ? Math.round(r.top - h - 6) : Math.round(r.bottom + 6)) + 'px';
+  }
+  function closePanel(){
+    open = false;
+    panel.classList.remove('on');
+    hud.classList.remove('open');
+    const box = hud.closest('.ba'); if(box) box.classList.remove('cand');
+    inp.setAttribute('aria-expanded', 'false');
+    inp.removeAttribute('aria-activedescendant');
+  }
+  function paintCand(){
+    if(!open) return;
+    cands = findVehicles(inp.value.trim(), { limit: 8 }).list.filter(v => !stagedIds().has(v.id));
+    if(sel >= cands.length) sel = -1;
+    panel.innerHTML = cands.length
+      ? cands.map((v, i) => {
+          const own = state.owned.has(v.id);
+          return '<button type="button" class="sel-opt' + (i === sel ? ' on' : '') + '"'
+            + ' id="baOpt' + i + '" data-cand="' + esc(v.id) + '" role="option"'
+            + ' aria-selected="' + (i === sel ? 'true' : 'false') + '">'
+            + '<span>' + esc(vLabel(v)) + '</span>'
+            + '<em>' + (own ? '已拥有' : (v.price > 0 ? fmt(v.price) : '—')) + '</em></button>';
+        }).join('')
+      : '<div class="sel-empty">' + (inp.value.trim() ? '没有匹配的载具' : '输入车名、拼音或首字母') + '</div>';
+    /* 键盘高亮要能被读屏软件读出来 */
+    const active = sel >= 0 && cands[sel] ? 'baOpt' + sel : '';
+    if(active) inp.setAttribute('aria-activedescendant', active);
+    else inp.removeAttribute('aria-activedescendant');
+    place();
+  }
+  function openPanel(){
+    open = true;
+    sel = -1;
+    panel.classList.add('on');
+    hud.classList.add('open');
+    const box = hud.closest('.ba'); if(box) box.classList.add('cand');
+    inp.setAttribute('aria-expanded', 'true');
+    paintCand();
+  }
+
+  /* 注册进浮层管理：换抽屉时会被 pruneSel 自动回收，不会漏在页面上 */
+  SEL_SKINS.push({ wrap: hud, panel, sel: inp, btn: inp, close: closePanel, label(){}, place });
+
+  /* ── 暂存清单 ── */
+  function paintList(){
+    nEl.innerHTML = staged.length ? '<i>' + staged.length + '</i> 辆' : '';
+    listEl.innerHTML = staged.length
+      ? staged.map((x, i) => '<div class="ba-row" style="animation-delay:' + Math.min(i, 12) * 22 + 'ms">'
+          + '<span class="ba-n">' + (i + 1) + '</span>'
+          + '<span class="ba-t"><span class="ba-t1">' + esc(x.label) + '</span>'
+          + '<span class="ba-t2">' + esc(x.sub || '') + '</span></span>'
+          + '<span class="ba-s">' + (state.owned.has(x.id) ? '已在库中' : '将标记') + '</span>'
+          + '<button type="button" class="ba-x" data-del="' + i + '" aria-label="从待添加里移除">✕</button></div>').join('')
+      : '<div class="ba-empty"><div class="ba-huds"><i></i>READY<i></i></div>'
+      + '<div class="ba-hudc">&gt;_</div><div class="ba-hudt">输入车名 · 回车或点候选加入</div>'
+      + '<div class="ba-hudk"><kbd>↑</kbd><kbd>↓</kbd> 选候选　<kbd>↵</kbd> 入列</div></div>';
+    okBtn.disabled = !staged.length;
+    okBtn.textContent = staged.length ? '批量添加 ' + staged.length + ' 辆' : '批量添加';
+  }
+  function add(v){
+    if(stagedIds().has(v.id)){
+      const row = listEl.querySelectorAll('.ba-row')[staged.findIndex(x => x.id === v.id)];
+      if(row){ row.classList.remove('dup'); void row.offsetWidth; row.classList.add('dup'); }
+      return;
+    }
+    staged.push({ id: v.id, label: vLabel(v),
+                  sub: [v.en, v.dealer, classOf(v)].filter(Boolean).join(' · ') });
+    /* 面板盖着暂存清单 —— 在 HUD 上闪一下加入确认，别让用户猜加没加上 */
+    const old = hud.querySelector('.ba-flash');
+    if(old) old.remove();
+    const fl = document.createElement('span');
+    fl.className = 'ba-flash';
+    fl.textContent = '✓ ' + vLabel(v);
+    hud.appendChild(fl);
+    setTimeout(() => { fl.classList.add('out'); setTimeout(() => fl.remove(), 240); }, 750);
+    inp.value = '';
+    sel = -1;
+    paintList();
+    paintCand();
+    inp.focus();
+  }
+
+  inp.addEventListener('input', () => {
+    if(!inp.value.trim()){ closePanel(); return; }
+    if(open) paintCand(); else openPanel();
+  });
+  inp.addEventListener('focus', () => { if(inp.value.trim()) openPanel(); });
+  inp.addEventListener('keydown', e => {
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(!open) return openPanel();
+      if(cands.length) sel = (sel + 1) % cands.length;
+      paintCand();
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(cands.length) sel = (sel - 1 + cands.length) % cands.length;
+      paintCand();
+    } else if(e.key === 'Enter'){
+      e.preventDefault();
+      if(cands.length) add(cands[sel >= 0 ? sel : 0]);
+      else { const v = resolveOne(inp.value.trim()); if(v) add(v); else toast('没认出这辆车', 'err'); }
+    } else if(e.key === 'Escape'){
+      e.stopPropagation();
+      closePanel();
+    }
+  });
+  panel.addEventListener('mousedown', e => e.preventDefault());
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('[data-cand]');
+    if(!b) return;
+    const v = byId.get(b.dataset.cand);
+    if(v) add(v);
+  });
+  listEl.addEventListener('click', e => {
+    const del = e.target.closest('[data-del]');
+    if(!del) return;
+    const row = del.closest('.ba-row');
+    staged.splice(+del.dataset.del, 1);
+    if(row && !RM){ row.classList.add('out'); setTimeout(paintList, 150); } else paintList();
+    paintCand();
+  });
+  document.addEventListener('click', e => {
+    if(!e.target.closest('#baHud') && !e.target.closest('.sel-panel')) closePanel();
+  });
+
+  okBtn.addEventListener('click', () => {
+    let n = 0;
+    staged.forEach(x => { if(!state.owned.has(x.id)){ toggleOwn(x.id, true, true); n++; } });
+    const skipped = staged.length - n;
+    scheduleSave(); updateOwnUI(); render(); closePanel();
+    msg('<span class="ok">已添加 ' + n + ' 辆到已拥有</span>'
+      + (skipped ? '<br><span class="muted">其中 ' + skipped + ' 辆本来就是已拥有</span>' : ''));
+    if(n) toast('已添加 ' + n + ' 辆', 'ok');
+    staged = [];
+    paintList();
+  });
+  $('#dCancel').addEventListener('click', closeDrawer);
+  paintList();
+}
+function drawerOwned(){
+  paneHead('管理已拥有', '点右侧 − 移除；移除只改持有记录，不动车辆数据库');
+  paneFoot('<button class="btn btn-xs" id="ownAll" title="清空筛选框，重新显示全部已拥有载具">显示全部</button>'
+         + '<button class="btn btn-xs btn-dgr" id="ownClear" title="清空全部「已拥有」标记（会二次确认，不可撤销）">全部清空</button>');
+  $('#dBody').innerHTML = uiField('ownQ', '在已拥有里筛选') + '<div class="ui-list" id="ownList"></div>';
+  const ownedAll = () => [...state.owned].filter(id => byId.has(id)).map(id => byId.get(id));
+  const paint = filter => {
+    const f = (filter || '').trim();
+    const arr = (f ? findVehicles(f, { base: v => state.owned.has(v.id), limit: 100000 }).list : ownedAll())
+      .sort((a, b) => a.cn.localeCompare(b.cn, 'zh-Hans-CN'));
+    $('#ownList').innerHTML = arr.length ? arr.map(v => uiItem({
+      data: `data-ownrow="${esc(v.id)}"`,
+      t1: vLabel(v),
+      t2: [v.en, v.dealer, classOf(v)].filter(Boolean).join(' · '),
+      p: v.price > 0 ? fmt(v.price) : '',
+      x: `data-unown="${esc(v.id)}" title="从「已拥有」中移除「${esc(v.cn)}」"`
+    })).join('') : uiEmpty('还没有标记任何载具');
+  };
+  paint('');
+  const inp = $('#ownQ');
+  window.__paintOwnDrawer = () => paint(inp.value);
+  inp.addEventListener('input', e => paint(e.target.value));
+  const clr = $('#ownQClr');
+  if(clr) clr.addEventListener('click', () => { inp.value = ''; paint(''); inp.focus(); });
+  $('#ownAll').addEventListener('click', () => { inp.value = ''; paint(''); });
+  $('#ownClear').addEventListener('click', () => {
+    const n = [...state.owned].filter(id => byId.has(id)).length;
+    if(!n){ toast('还没有标记任何载具'); return; }
+    if(!confirm(`确定清空全部 ${n} 辆「已拥有」标记？此操作不可撤销。`)) return;
+    state.owned.clear(); state.meta.clear();
+    scheduleSave(); updateOwnUI(); render(true); paint('');
+    toast('已清空全部持有标记');
+  });
+}
+function drawerImport(){
+  paneHead('导入配置', '从配置文件恢复持有记录；会整体覆盖当前记录');
+  paneFoot('<button class="btn btn-acid" id="imOk" title="用下面的内容覆盖当前持有记录">导入并覆盖</button>'
+         + '<button class="btn" id="imFile" title="选择一个 YAML 配置文件">选择文件</button>');
+  $('#dBody').innerHTML = `<p class="ui-hint">把 <code>GTA车辆持有配置.yaml</code> 的内容整段粘到下面，或点「选择文件」。</p>`
+    + '<textarea id="imTa" placeholder="version: 2&#10;owned:&#10;  - id: zentorno"></textarea>';
+  const ta = $('#imTa');
+  $('#imFile').addEventListener('click', () => $('#fileIn').click());
+  $('#imOk').addEventListener('click', () => {
+    const txt = ta.value.trim();
+    if(!txt){ toast('还没有内容', 'err'); return; }
+    applyImport(txt);
+  });
+}
+function applyImport(txt){
+  let cfg;
+  try{ cfg = yamlParse(txt); }
+  catch(e){ toast('配置解析失败：' + (e && e.message || e), 'err'); return; }
+  if(!cfg || !Array.isArray(cfg.owned)){ toast('没找到 owned: 列表', 'err'); return; }
+  adoptConfig(cfg);
+  scheduleSave();
+  $('#sort').value = sortOK(state.sort);
+  $('#tHide').classList.toggle('on', state.hideOwned);
+  $('#tBuy').classList.toggle('on', state.buyable);
+  render();
+  toast(`已导入 ${state.owned.size} 辆已拥有`, 'ok');
+  closeDrawer();
+}
+$('#fileIn').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  f.text().then(txt => {
+    if($('#imTa')) $('#imTa').value = txt;
+    applyImport(txt);
+  }).catch(err => toast('读取失败：' + err, 'err'));
+  e.target.value = '';
+});
+
+function txtExport(){
+  const own = [...state.owned].filter(id => byId.has(id)).map(id => byId.get(id))
+    .sort((a, b) => classOf(a).localeCompare(classOf(b), 'zh-Hans-CN') || a.cn.localeCompare(b.cn, 'zh-Hans-CN'));
+  const L = ['# GTA 线上载具 · 已拥有清单',
+    '# 导出时间 ' + new Date().toLocaleString('zh-CN'),
+    '# 共 ' + own.length + ' 辆 · 一行一辆，可自由增删',
+    '# 编辑完把内容整段复制，回到页面点「批量标记」粘贴即可恢复', ''];
+  let cur = '';
+  own.forEach(v => {
+    const c = classOf(v);
+    if(c !== cur){ cur = c; L.push(''); L.push('## ' + c); }
+    L.push(v.cn + (v.price > 0 ? '\t$' + Number(v.price).toLocaleString('en-US') : ''));
+  });
+  if(!own.length) L.push('（还没有标记任何载具）');
+  return L.join('\n') + '\n';
+}
+function download(name, text){
+  const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+(function initTips(){
+  const tip = document.createElement('div');
+  tip.className = 'tip';
+  tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+  let owner = null;
+  function place(){
+    if(!owner) return;
+    const r = owner.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    let left = Math.max(12, Math.min(r.left + r.width / 2 - tip.offsetWidth / 2, vw - tip.offsetWidth - 12));
+    let top = r.top - tip.offsetHeight - 9;
+    if(top < 10) top = r.bottom + 9;
+    if(top + tip.offsetHeight > vh - 8) top = Math.max(10, vh - tip.offsetHeight - 8);
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  function show(el){
+    const t = el.getAttribute('title');
+    if(!t || t.length < 2) return;
+    el.setAttribute('data-tip', t);
+    el.removeAttribute('title');
+    tip.textContent = t;
+    tip.classList.add('on');
+    owner = el;
+    place();
+  }
+  function hide(el){
+    if(el && el.hasAttribute('data-tip') && el !== owner) return;
+    if(owner){ owner.setAttribute('title', owner.getAttribute('data-tip')); owner.removeAttribute('data-tip'); }
+    owner = null;
+    tip.classList.remove('on');
+  }
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[title],[data-tip]');
+    if(el && el !== owner){ hide(null); show(el); }
+  }, true);
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest('[title],[data-tip]');
+    if(el && el === owner && !el.contains(e.relatedTarget)) hide(el);
+  }, true);
+  document.addEventListener('click', () => hide(null), true);
+  document.addEventListener('scroll', () => hide(null), true);
+  window.addEventListener('resize', () => hide(null));
+})();
+
+(function initRail(){
+  const rail = document.querySelector('.rail');
+  let raf = 0;
+  const upd = () => {
+    raf = 0;
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    rail.style.setProperty('--sp', Math.min(100, y / max * 100).toFixed(2) + '%');
+    const tt = $('#toTop');
+    if(tt) tt.classList.toggle('on', y > 520);
+  };
+  const onScroll = () => { if(!raf) raf = requestAnimationFrame(upd); };
+  window.addEventListener('scroll', onScroll, { passive:true });
+  window.addEventListener('resize', onScroll);
+  $('#toTop').addEventListener('click', () => window.scrollTo({ top: 0, behavior: RM ? 'auto' : 'smooth' }));
+  upd();
+})();
+
+const SEL_SKINS = [];
+function closeSel(except){ SEL_SKINS.forEach(o => { if(o.wrap !== except) o.close(); }); }
+function syncSelLabels(){ SEL_SKINS.forEach(o => o.label()); }
+function pruneSel(){
+  for(let i = SEL_SKINS.length - 1; i >= 0; i--){
+    const o = SEL_SKINS[i];
+    if(!o.sel || !o.sel.isConnected){
+      if(o.panel && o.panel.parentNode) o.panel.parentNode.removeChild(o.panel);
+      SEL_SKINS.splice(i, 1);
+    }
+  }
+}
+function placeOpenSel(){
+  SEL_SKINS.forEach(o => {
+    if(!o.wrap.classList.contains('open')) return;
+    const r = o.btn.getBoundingClientRect();
+    if(r.bottom < 0 || r.top > window.innerHeight) o.close();
+    else o.place();
+  });
+}
+function skinSelect(sel, placeholder){
+  if(!sel || sel.dataset.skinned) return;
+  sel.dataset.skinned = '1';
+  sel.dataset.ph = placeholder || '全部';
+  const wrap = document.createElement('div'); wrap.className = 'sel-wrap';
+  sel.parentNode.insertBefore(wrap, sel);
+  wrap.appendChild(sel);
+  sel.classList.add('sel-native');
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'sel-btn';
+  btn.setAttribute('aria-haspopup', 'listbox');
+  btn.innerHTML = '<span class="sel-lab"></span><i class="sel-arw"></i>';
+  const panel = document.createElement('div');
+  panel.className = 'sel-panel'; panel.setAttribute('role', 'listbox');
+  wrap.appendChild(btn);
+  document.body.appendChild(panel);
+  const lab = btn.querySelector('.sel-lab');
+  function label(){
+    const o = sel.options[sel.selectedIndex];
+    const v = o ? o.value : '';
+    const full = v ? o.textContent.replace(/\s*·\s*\d+$/, '') : sel.dataset.ph;
+    lab.textContent = full;
+    btn.title = full;
+    wrap.classList.toggle('has', !!v);
+  }
+  function build(){
+    const many = sel.options.length > 9;
+    panel.innerHTML = (many ? '<div class="sel-search"><input type="text" placeholder="输入中文 / 英文筛选" autocomplete="off" spellcheck="false"></div>' : '')
+      + ([...sel.options].map(o => `<button type="button" class="sel-opt${o.selected ? ' on' : ''}" data-v="${esc(o.value)}" role="option"><span>${esc(o.value ? o.textContent : sel.dataset.ph)}</span></button>`).join('')
+         || '<div class="sel-empty">暂无可选项</div>')
+      + (many ? '<div class="sel-empty" style="display:none">没有匹配项</div>' : '');
+    if(!many) return;
+    const box = panel.querySelector('.sel-search input');
+    if(!box) return;
+    box.addEventListener('input', () => {
+      const qv = box.value.trim().toLowerCase();
+      let shown = 0;
+      panel.querySelectorAll('.sel-opt').forEach(b => {
+        const hit = !qv || b.textContent.toLowerCase().includes(qv) || String(b.dataset.v || '').toLowerCase().includes(qv);
+        b.style.display = hit ? '' : 'none';
+        if(hit) shown++;
+      });
+      const emp = panel.querySelectorAll('.sel-empty');
+      if(emp.length) emp[emp.length - 1].style.display = shown ? 'none' : '';
+    });
+    box.addEventListener('keydown', e => {
+      e.stopPropagation();
+      if(e.key === 'Enter'){ const f = [...panel.querySelectorAll('.sel-opt')].find(b => b.style.display !== 'none'); if(f) f.click(); }
+      if(e.key === 'Escape') close();
+    });
+    setTimeout(() => box.focus(), 0);
+  }
+  function place(){
+    const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+    panel.style.minWidth = Math.max(Math.round(r.width), 150) + 'px';
+    panel.style.maxWidth = Math.min(460, vw - 24) + 'px';
+    panel.style.maxHeight = Math.max(180, vh - 20) + 'px';
+    panel.style.left = '0px'; panel.style.top = '0px';
+    const pw = panel.offsetWidth;
+    const cap = parseFloat(getComputedStyle(panel).maxHeight) || vh;
+    const ph = Math.min(panel.scrollHeight + 2, cap);
+    const left = Math.max(12, Math.min(r.left, vw - pw - 12));
+    let top = r.bottom + 6;
+    if(top + ph > vh - 10) top = r.top - ph - 6;
+    top = Math.max(10, Math.min(top, vh - ph - 10));
+    panel.style.left = left + 'px';
+    panel.style.top = top + 'px';
+  }
+  function open(){
+    closeSel(wrap); build(); wrap.classList.add('open'); panel.classList.add('on'); place();
+    const c = panel.querySelector('.sel-opt.on');
+    if(c) panel.scrollTop = Math.max(0, c.offsetTop - panel.clientHeight / 2 + c.offsetHeight / 2);
+  }
+  function close(){ wrap.classList.remove('open'); panel.classList.remove('on'); }
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    wrap.classList.contains('open') ? close() : open();
+  });
+  panel.addEventListener('click', e => {
+    e.stopPropagation();
+    const b = e.target.closest('.sel-opt');
+    if(!b) return;
+    sel.value = b.dataset.v;
+    sel.dispatchEvent(new Event('change', { bubbles:true }));
+    label(); close();
+  });
+  sel.addEventListener('change', label);
+  SEL_SKINS.push({ sel, label, wrap, btn, panel, place, close });
+  label();
+}
+document.addEventListener('click', () => closeSel(null));
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Escape') return;
+  if(SEL_SKINS.some(o => o.wrap.classList.contains('open'))){ e.stopPropagation(); closeSel(null); }
+}, true);
+window.addEventListener('resize', () => { syncStickyOffset(); placeOpenSel(); });
+window.addEventListener('scroll', e => {
+  const t = e && e.target;
+  if(t && t.closest && t.closest('.sel-panel')) return;
+  placeOpenSel();
+}, true);
+['wheel', 'touchmove'].forEach(ev => window.addEventListener(ev, e => {
+  const t = e && e.target;
+  if(t && t.closest && t.closest('.sel-panel')) return;
+  placeOpenSel();
+}, { passive:true, capture:true }));
+
+const _rm = $('#btnMore2'), _rmenu = $('#railMenu');
+function railMenuClose(){ _rmenu.classList.remove('on'); _rm.setAttribute('aria-expanded', 'false'); }
+_rm.addEventListener('click', e => {
+  e.stopPropagation();
+  const on = !_rmenu.classList.contains('on');
+  _rmenu.classList.toggle('on', on);
+  _rm.setAttribute('aria-expanded', on ? 'true' : 'false');
+});
+document.addEventListener('click', e => { if(!e.target.closest('#railMenu') && !e.target.closest('#btnMore2')) railMenuClose(); });
+
+$('#btnAdd').addEventListener('click', () => { railMenuClose(); openDrawer('paste'); });
+$('#btnImport').addEventListener('click', () => { railMenuClose(); openDrawer('import'); });
+$('#btnWant').addEventListener('click', () => { railMenuClose(); openDrawer('want'); });
+$('#ownChip').addEventListener('click', () => openDrawer('owned'));
+$('#wantChip').addEventListener('click', () => openDrawer('want'));
+$('#btnExport').addEventListener('click', () => {
+  railMenuClose();
+  const cfg = configOut();
+  cfg.rev = state.rev;
+  download(`GTA车辆持有配置_${today()}.yaml`, yamlDump(cfg));
+  toast('已导出配置副本（第 ' + state.rev + ' 版）', 'ok');
+});
+$('#btnExportTxt').addEventListener('click', () => {
+  railMenuClose();
+  download(`GTA已拥有清单_${today()}.txt`, txtExport());
+  toast(`已导出 TXT · ${[...state.owned].filter(id => byId.has(id)).length} 辆已拥有`, 'ok');
+});
+
+async function bindConfig(interactive){
+  try{
+    let h = Store.handle;
+    if(!h){
+      if(!Store.canPick){ toast('这个浏览器不支持绑定文件，请用「导入配置」', 'err'); return false; }
+      h = await Store.pick();
+    }
+    if(!await Store.perm(h, interactive)){ setSync('busy', '配置文件-待授权'); return false; }
+    const prevMirror = Store.mode === 'mirror' ? mirrorLoad() : null;
+    Store.mode = 'file';
+    const fileCfg = yamlParse(await Store.pull());
+    if(prevMirror && (prevMirror.rev || 0) > (fileCfg.rev || 0)){
+      /* 浏览器里的数据比文件新（断连期间改过）→ 先写回文件再采用，改动不丢 */
+      await Store.push(yamlDump(prevMirror));
+      adoptConfig(prevMirror);
+    }else{
+      adoptConfig(fileCfg);
+    }
+    mirrorSync();
+    setSync('ok', '配置文件-已加载');
+    $('#cfgRev').textContent = '已加载';
+    $('#sort').value = sortOK(state.sort);
+    $('#tHide').classList.toggle('on', state.hideOwned);
+    $('#tBuy').classList.toggle('on', state.buyable);
+    render();
+    updateCfgWarn();
+    toast('已绑定配置文件 · ' + state.owned.size + ' 辆已拥有', 'ok');
+    return true;
+  }catch(e){
+    if(e && e.name === 'AbortError') return false;
+    toast('绑定失败：' + (e && e.name || e), 'err');
+    return false;
+  }
+}
+$('#sync').addEventListener('click', () => bindConfig(true));
+$('#cfgWarnBind').addEventListener('click', () => bindConfig(true));
+$('#cfgWarnLater').addEventListener('click', () => $('#cfgWarn').classList.remove('on'));
+if(!Store.canPick){
+  $('#sync').title = '当前浏览器不能绑定本地文件（Firefox / Safari）—— 改用「更多 → 导出配置」保存';
+}
+
+function safeSkin(sel, ph){ try{ skinSelect(sel, ph); }catch(e){ console.error('[skinSelect]', e); } }
+safeSkin($('#sort'), '官方分类');
+safeSkin(fC, '全部分类');
+safeSkin(fB, '全部厂商');
+safeSkin(fD, '全部渠道');
+
+/* ── 数字滚动：业绩数字从 0 滚到目标，一眼看到「库有多大」；减少动态效果时直接落定 ── */
+function countUp(el, target){
+  if(RM || !(target > 0)){ el.textContent = target; return; }
+  const t0 = performance.now(), dur = 850;
+  const step = t => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * e);
+    if(p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ── 动效层：背景光斑惯性跟随 + 卡片光晕定点 + 顶栏滚动态。
+      三件事都只碰 transform / 自定义属性 / 透明度，不参与布局；
+      系统开了「减少动态效果」时整层停用 ── */
+if(!RM){
+  const glowEl = $('#glow');
+  if(glowEl && matchMedia('(pointer:fine)').matches){
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const paint = () => { glowEl.style.transform = 'translate3d(' + Math.round(x) + 'px,' + Math.round(y) + 'px,0)'; };
+    const tick = () => {
+      x += (tx - x) * .09; y += (ty - y) * .09;
+      paint();
+      raf = (Math.abs(tx - x) > .5 || Math.abs(ty - y) > .5) ? requestAnimationFrame(tick) : 0;
+    };
+    addEventListener('mousemove', e => {
+      tx = e.clientX; ty = e.clientY;
+      if(!glowEl.classList.contains('on')){
+        x = tx; y = ty;
+        glowEl.classList.add('on');
+        paint();
+      }
+      if(!raf) raf = requestAnimationFrame(tick);
+    }, {passive: true});
+  }
+
+  let gCard = null;
+  const grid = $('#grid');
+  grid.addEventListener('mousemove', e => {
+    const c = e.target.closest ? e.target.closest('.v') : null;
+    if(gCard && gCard !== c){
+      gCard.style.removeProperty('--mx'); gCard.style.removeProperty('--my');
+    }
+    gCard = c;
+    if(!c) return;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', Math.round(e.clientX - r.left) + 'px');
+    c.style.setProperty('--my', Math.round(e.clientY - r.top) + 'px');
+  });
+  grid.addEventListener('mouseleave', () => {
+    if(gCard){ gCard.style.removeProperty('--mx'); gCard.style.removeProperty('--my'); gCard = null; }
+  });
+}
+
+addEventListener('scroll', () => {
+  const r = $('.rail');
+  if(r) r.classList.toggle('scrolled', scrollY > 6);
+}, {passive: true});
+
+boot();
+</script>
+</body>
+</html>

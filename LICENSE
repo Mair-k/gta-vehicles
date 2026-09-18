@@ -1,0 +1,47 @@
+MIT License
+
+Copyright (c) 2026 Mair-k
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTE — the MIT license above covers the SOURCE CODE only
+(scripts/, flow-plugin/, scripts/template.html).
+
+It does NOT cover the data, which is licensed separately:
+
+* Vehicle data — data/site_data.json, data/pinyin.json, and the vehicle data
+  embedded in the built page (GTA线上全车辆清单.html) — comes from
+  "GTAOL 中文知识库 / GTAOL Knowledge Base" (https://docs.82lf.cn/) by
+  "来一瓶82年的拉菲好嘛", and is licensed under
+  CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/):
+  attribution + NON-COMMERCIAL + share-alike. Redistributing this data (or any
+  page containing it) requires keeping the same license, and commercial use is
+  not allowed. Only data fields were extracted and reformatted; the source
+  site's original prose is not reproduced.
+
+* Weekly deal data — data/deals.json — contains only facts (vehicle + discount
+  percentage) collected from the sources listed inside that file (e.g.
+  https://www.gtaboom.com/gta-online-weekly-updates) and from manual entry.
+  Copyright of the original articles remains with their respective sites; the
+  article text itself is not redistributed.
+
+Game names, vehicle names and trademarks belong to Rockstar Games / Take-Two
+Interactive. This is an unofficial fan project, not affiliated with them.

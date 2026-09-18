@@ -1,0 +1,12 @@
+{
+  "ID": "8F2A6C41-3D7B-4E19-9C58-1A6B2D4E7F03",
+  "ActionKeyword": "gta",
+  "Name": "GTA 载具库",
+  "Description": "打开 GTA 线上载具清单页（搜索 / 已拥有 / 计划购买 / 每周折扣都在页面里）",
+  "Author": "洛圣都车库档案",
+  "Version": "1.1.0",
+  "Language": "python",
+  "Website": "",
+  "IcoPath": "icon.png",
+  "ExecuteFileName": "main.py"
+}

@@ -1,0 +1,200 @@
+{
+  "updated": "2026-09-17",
+  "from": "2026-09-17",
+  "to": "2026-09-23",
+  "sources": [
+    "gtaboom",
+    "manual"
+  ],
+  "sourceInfo": {
+    "gtaboom": {
+      "role": "web",
+      "url": "https://www.gtaboom.com/gta-online-weekly-updates",
+      "note": "每周更新的折扣文章；只取折扣事实（车辆 + 百分比），原文版权归该站"
+    },
+    "manual": {
+      "role": "manual",
+      "file": "data/deals_manual.txt",
+      "note": "人工录入的当周折扣，见该文件"
+    }
+  },
+  "note": "折扣为事实性数据（车辆 + 折扣百分比）。原文版权归各来源站所有；本文件不含原文文字，只保留事实字段与来源链接。",
+  "items": [
+    {
+      "id": "astron2",
+      "pct": 70,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 516000
+    },
+    {
+      "id": "nightshark",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 871500
+    },
+    {
+      "id": "hermes",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 374500
+    },
+    {
+      "id": "torero",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 698600
+    },
+    {
+      "id": "viseris",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 612500
+    },
+    {
+      "id": "halftrack",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 1578045
+    },
+    {
+      "id": "everon",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 1032500
+    },
+    {
+      "id": "bestiagts",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 427000
+    },
+    {
+      "id": "lectro",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 698250
+    },
+    {
+      "id": "xa21",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 1169000
+    },
+    {
+      "id": "shamal",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 805000
+    },
+    {
+      "id": "niobe",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 1316000
+    },
+    {
+      "id": "nightshade",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 409500
+    },
+    {
+      "id": "rogue",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 1117200
+    },
+    {
+      "id": "hakuchou2",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 683200
+    },
+    {
+      "id": "deviant",
+      "pct": 30,
+      "tags": [
+        "deal"
+      ],
+      "sources": [
+        "manual"
+      ],
+      "price": 358400
+    }
+  ]
+}

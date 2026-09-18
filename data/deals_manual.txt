@@ -1,0 +1,13 @@
+# 当周折扣 · 人工兜底（抓不到站点时用它）
+# 每行一条，格式：  车名 = 折扣%
+# 车名写英文名或中文名都认（会按车辆库的别名索引匹配）。
+# 只标记「下架车辆限时回归」而不打折的，写：  车名 = 回归
+# 井号后面是注释。改完跑一次：
+#     python scripts/update_deals.py --dry     先看匹配到几辆
+#     python scripts/update_deals.py           写盘
+#
+# 例：
+# Pfister Astron Custom = 70
+# HVY Nightshark = 30
+# Ocelot XA-21 = 30
+# Karin S95 = 回归

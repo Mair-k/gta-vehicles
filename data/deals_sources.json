@@ -1,0 +1,24 @@
+[
+  {
+    "name": "gtaboom",
+    "enabled": true,
+    "url": "https://www.gtaboom.com/gta-online-weekly-updates",
+    "discover": "href=\"(/gta-online[^\"]*-[a-z0-9-]*20\\d\\d)\"",
+    "parse": "auto"
+  },
+  {
+    "name": "pcquest",
+    "enabled": false,
+    "url": "https://www.pcquest.com/gaming/",
+    "discover": "href=\"(https://www\\.pcquest\\.com/gaming/gta-online-weekly-update[^\"]+)\"",
+    "parse": "auto"
+  },
+  {
+    "name": "manual",
+    "enabled": true,
+    "url": "",
+    "discover": "",
+    "parse": "auto",
+    "file": "data/deals_manual.txt"
+  }
+]
